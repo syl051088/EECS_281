@@ -1,52 +1,39 @@
 #include <iostream>
 #include <deque>
-#include <climits>
 #include <string>
 #include <getopt.h>
+#include <vector>
 #include "xcode_redirect.hpp"
+#include "solver.h"
 using namespace std;
 
-struct Tile{
+struct Tile {
 public:
-    bool isVisited = 0;
-    char value;
+    bool isVisited = false;
+    char value = 'c';
 };
 
-class solver{
+struct Location {
 public:
-    void solve(string outputMode) {
-    deque<Tile> tileDeque;
-    while (!tileDeque.empty()) {
-        // Tile current;
-    }
-    if (outputMode == "q") {
-        // tileDeque.push_back(mapVec);
-    } else {
+    uint32_t room;
+    uint32_t row;
+    uint32_t col;
+};
 
-    }
-}
-
+class Solver{
 private:
-    // vector<vector<vector<Tile>>> mapVec;
-    char mode;
-    unsigned char R;
+    vector<vector<vector<Tile>>> mapVec;
+    bool stackMode;
+    uint32_t R;
     uint32_t N;
-};
+    Location start;
+    Location end;
 
+public:
+    // Solver(uint32_t room, uint32_t row, uint32_t col) {
+    // }
 
-
-// mapVec.reserve(R * N * N);
-
-
-void printHelp(char *argv[]) {
-    cout << "Usage: " << argv[0] << " [-m resize|reserve|nosize]|-h" << endl;
-    cout << "This program is to help you learn command-line processing," << endl;
-    cout << "reading data into a vector, the difference between resize and reserve," << endl;
-    cout << "and how to properly read until end-of-file." << endl;
-} // printHelp()
-
-
-string getMode(int argc, char * argv[]) {
+    void getMode(int argc, char * argv[]) {
     bool modeSpecified = false;
     string mode;
 
@@ -55,22 +42,21 @@ string getMode(int argc, char * argv[]) {
     int choice;
     int option_index = 0;
     option long_options[] = {
-        { "queue", required_argument, nullptr, 'q' },
+        { "queue", no_argument, nullptr, 'q' },
         { "stack", no_argument, nullptr, 's' },
+        { "help", no_argument, nullptr, 'h' },
+        { "output", required_argument, nullptr, 'o'},
         { nullptr, 0,                 nullptr, '\0' }
     };
 
     // Fill in the double quotes, to match the mode and help options.
-    while ((choice = getopt_long(argc, argv, "q:s:h", long_options, &option_index)) != -1) {
+    while ((choice = getopt_long(argc, argv, "qsho:", long_options, &option_index)) != -1) {
         switch (choice) {
         case 'h':
             printHelp(argv);
-            return 0;
+            exit(0);
         case 'q':
             mode = optarg;
-            if (mode != "stack") {
-
-            }
         case 's':
             mode = optarg;
             if (mode != "resize" && mode != "reserve" && mode != "nosize") {
@@ -83,10 +69,8 @@ string getMode(int argc, char * argv[]) {
             } // if
             modeSpecified = true;
             break;
-
-        default:
-            cerr << "Error: invalid option" << endl;
-            exit(1);
+        case 'o':
+            mode = 'o';
         } // switch
     } // while
 
@@ -95,74 +79,61 @@ string getMode(int argc, char * argv[]) {
         exit(1);
     } // if
 
-    return mode;
 } // getMode()
 
-void readFile() {
-    cin >> mode;
-    cin >> R;
-    cin >> N;
+    void readMap() {
+        char mapMode;
+        cin >> mapMode;
 
-    // if (mode == 'M') {
-    //     readM();
-    // } else {
-    //     readL();
-    // }
-}
-
-void readM() {
-    string s;
-    uint32_t length = 0;
-    while (getline(cin, s)) {
-        if (s[0] == '/') {
-            continue;
-        }
-
-        if (length >= N - 1) {
-            length = 0;
-        } else {
-            ++length;
+        if (mapMode == 'M') {
+            load_m();
+        } else if (mapMode == 'L') {
+            load_l();
         }
     }
-}
 
-void readL() {
-    string s;
-    while (getline(cin, s)) {
-        if (s[0] == '/') {
-            continue;
+    void solve(bool stackMode) {
+        deque<Location> tileDeque;
+        while (!tileDeque.empty()) {
+            if (stackMode) {
+            // tileDeque.push_back(mapVec);
+            } else {
+
+            }
         }
-
-
     }
-}
 
+private:
+    void load_m() {
+        cin >> R;
+        cin >> N;
+    }
 
+    void load_l() {
+        cin >> R;
+        cin >> N;
+    }
 
-
-
+    void printHelp(char *argv[]) {
+    cout << "Usage: " << argv[0] << " [-m resize|reserve|nosize]|-h" << endl;
+    cout << "This program is to help you learn command-line processing," << endl;
+    cout << "reading data into a vector, the difference between resize and reserve," << endl;
+    cout << "and how to properly read until end-of-file." << endl;
+    } // printHelp()
+};
 
 int main(int argc, char* argv[]) {
     ios_base::sync_with_stdio(false);
     xcode_redirect(argc, argv);
 
-    // string oMode;
-    readFile();
+    Solver s;
+    
+    s.getMode();
+    s.readMap();
 
-    // oMode = getMode(argc, argv);
+    s.solve();
 
-    // if (oMode == "stack" || oMode == "queue")
-    //     solve(oMode);
-    // // else if (oMode == "reserve")
-    // //     readWithReserve(data);
-    // // else if (oMode == "nosize")
-    // //     readWithNoSize(data);
-    // else {
-    //     cerr << "Invalid mode \"" << mode << "\" specified, should not be possible to reach this point!" << endl;
-    //     return 1;
-    // } // if
-
-    cout << "Mode is: " << mode << "\n";
+    cout << "Mode is: " << s.mode << "\n";
     cout << "Number of rooms: " << R << "\n";
     cout << "Size of room: " << N << "\n";
     return 0;
