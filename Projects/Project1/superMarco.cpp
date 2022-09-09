@@ -30,56 +30,58 @@ private:
     Location end;
 
 public:
-    // Solver(uint32_t room, uint32_t row, uint32_t col) {
-    // }
+    Solver() {
+    
+    }
 
     void getMode(int argc, char * argv[]) {
-    bool modeSpecified = false;
-    string mode;
+        bool modeSpecified = false;
+        string mode;
 
-    // These are used with getopt_long()
-    opterr = false; // Let us handle all error output for command line options
-    int choice;
-    int option_index = 0;
-    option long_options[] = {
-        { "queue", no_argument, nullptr, 'q' },
-        { "stack", no_argument, nullptr, 's' },
-        { "help", no_argument, nullptr, 'h' },
-        { "output", required_argument, nullptr, 'o'},
-        { nullptr, 0,                 nullptr, '\0' }
-    };
+        // These are used with getopt_long()
+        opterr = false; // Let us handle all error output for command line options
+        int choice;
+        int option_index = 0;
+        option long_options[] = {
+            { "queue", no_argument, nullptr, 'q' },
+            { "stack", no_argument, nullptr, 's' },
+            { "help", no_argument, nullptr, 'h' },
+            { "output", required_argument, nullptr, 'o'},
+            { nullptr, 0,                 nullptr, '\0' }
+        };
 
-    // Fill in the double quotes, to match the mode and help options.
-    while ((choice = getopt_long(argc, argv, "qsho:", long_options, &option_index)) != -1) {
-        switch (choice) {
-        case 'h':
-            printHelp(argv);
-            exit(0);
-        case 'q':
-            mode = optarg;
-        case 's':
-            mode = optarg;
-            if (mode != "resize" && mode != "reserve" && mode != "nosize") {
-                // The first line of error output has to be a 'fixed' message for the autograder
-                // to show it to you.
-                cerr << "Error: invalid mode" << "\n";
-                // The second line can provide more information, but you won't see it on the AG.
-                cerr << "  I don't know recognize: " << mode << "\n";
-                exit(1);
-            } // if
-            modeSpecified = true;
-            break;
-        case 'o':
-            mode = 'o';
-        } // switch
-    } // while
+        // Fill in the double quotes, to match the mode and help options.
+        while ((choice = getopt_long(argc, argv, "qsho:", long_options, &option_index)) != -1) {
+            switch (choice) {
+            case 'h':
+                printHelp(argv);
+                exit(0);
+            case 'q':
+                stackMode = false;
+                mode = optarg;
+            case 's':
+                stackMode = true;
+                mode = optarg;
+                if (mode != "resize" && mode != "reserve" && mode != "nosize") {
+                    // The first line of error output has to be a 'fixed' message for the autograder
+                    // to show it to you.
+                    cerr << "Error: invalid mode" << "\n";
+                    // The second line can provide more information, but you won't see it on the AG.
+                    cerr << "  I don't know recognize: " << mode << "\n";
+                    exit(1);
+                } // if
+                modeSpecified = true;
+                break;
+            case 'o':
+                mode = 'o';
+            } // switch
+        } // while
 
-    if (!modeSpecified) {
-        cerr << "Error: no mode specified" << endl;
-        exit(1);
-    } // if
-
-} // getMode()
+        if (!modeSpecified) {
+            cerr << "Error: no mode specified" << endl;
+            exit(1);
+        } // if
+    } // getMode()
 
     void readMap() {
         char mapMode;
@@ -93,12 +95,18 @@ public:
     }
 
     void solve(bool stackMode) {
-        deque<Location> tileDeque;
-        while (!tileDeque.empty()) {
-            if (stackMode) {
-            // tileDeque.push_back(mapVec);
-            } else {
+        deque<Location> locDeque;
+        Location next = start;
+        locDeque.push_back(next);
+        mapVec[next.room][next.row][next.col].isVisited = true;
 
+        while (!locDeque.empty()) {
+            if (stackMode) {
+                next = locDeque.back();
+                locDeque.pop_back();
+            } else {
+                next = locDeque.front();
+                locDeque.pop_front();
             }
         }
     }
@@ -107,6 +115,18 @@ private:
     void load_m() {
         cin >> R;
         cin >> N;
+
+        mapVec.resize(R, vector<vector<Tile>>(N, vector<Tile>(N)));
+        char c;
+        string junk;
+
+        while (cin >> c) {
+            if (c == '/') {
+                getline(cin, junk);
+            }
+
+            cin >> N;
+        }
     }
 
     void load_l() {
@@ -128,13 +148,10 @@ int main(int argc, char* argv[]) {
 
     Solver s;
     
-    s.getMode();
+    s.getMode(argc, argv);
     s.readMap();
 
-    s.solve();
+    s.solve(false);
 
-    cout << "Mode is: " << s.mode << "\n";
-    cout << "Number of rooms: " << R << "\n";
-    cout << "Size of room: " << N << "\n";
     return 0;
 }
