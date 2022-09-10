@@ -167,6 +167,9 @@ void MusicLibrary::get_options(int argc, char** argv) {
     // use getopt to find command line options
     struct option longOpts[] = {{ "print", required_argument, nullptr, 'p' },
                                 { "help", no_argument, nullptr, 'h' },
+                                { "name", no_argument, nullptr, 'n'},
+                                { "artist", no_argument, nullptr, 'a'},
+                                { "listens", no_argument, nullptr, 'l'},
                                 { nullptr, 0, nullptr, '\0' }};
     
     /*
@@ -177,17 +180,20 @@ void MusicLibrary::get_options(int argc, char** argv) {
                 char, options with no_argument do not (help).
 
     */
-    while ((option = getopt_long(argc, argv, "p:h", longOpts, &option_index)) != -1) {
+    while ((option = getopt_long(argc, argv, "p:hnal", longOpts, &option_index)) != -1) {
         switch (option) {
             case 'p':
                 num_print = std::atoi(optarg);
                 break;
 
-            /*
+            case 'n':
+                policy = 'n';
 
-                TODO: Add the remaining cases and decide what to do when they occur.
+            case 'a':
+                policy = 'a';
 
-            */               
+            case 'l':
+                policy = 'l';         
 
             case 'h':
                 std::cout << "This program reads a CSV file that contains song names,\n"
@@ -303,13 +309,11 @@ void MusicLibrary::run() {
     // Determine our sorting policy and sort.
     if (policy == 'n') {
         std::sort(music.begin(), music.end(), Song::NameSort());
+    } else if (policy == 'a') {
+        sort(music.begin(), music.end(), Song::ArtistSort());
+    } else if (policy == 'l') {
+        sort(music.begin(), music.end(), Song::ListensSort());
     }
-
-    /*
-
-        TODO: Add the remaining sorting cases (sorting by artist and listens).
-
-    */
 
     // Print out the first num_print songs with the
     // overloaded stream insertion operator.   
