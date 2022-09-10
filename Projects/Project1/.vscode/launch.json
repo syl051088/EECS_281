@@ -12,7 +12,7 @@
                 null, // redirect stdout
                 null // redirect stderr
             ],
-            "args": ["-m", "resize", "<", "sample-r.txt"],
+            "args": ["-s", "-o", "L", "<", "spec-M.txt"],
             "stopOnEntry": false,
             "cwd": "${workspaceFolder}",
             "postDebugTask": "clean workspace"

@@ -4,20 +4,7 @@
 #include <getopt.h>
 #include <vector>
 #include "xcode_redirect.hpp"
-#include "solver.h"
 using namespace std;
-
-struct Tile {
-public:
-    bool isVisited;
-    char value;
-
-public:
-    Tile() {
-        isVisited = false;
-        value = '.';
-    };
-};
 
 struct Location {
 public:
@@ -33,14 +20,28 @@ public:
     }
 };
 
+struct Tile {
+public:
+    bool isVisited;
+    char value;
+    Location prev;
+
+public:
+    Tile() {
+        isVisited = false;
+        value = '.';
+    };
+};
+
 class Solver{
 private:
-    vector<vector<vector<Tile>>> mapVec;
+    vector<vector<vector<Tile>>> tileVec;
     bool stackMode;
     uint32_t R;
     uint32_t N;
     Location start;
     Location end;
+    string outputMode;
 
 public:
     Solver() {
@@ -48,8 +49,7 @@ public:
     }
 
     void getMode(int argc, char * argv[]) {
-        bool modeSpecified = false;
-        string mode;
+        uint32_t modeN = 0;
 
         // These are used with getopt_long()
         opterr = false; // Let us handle all error output for command line options
@@ -63,55 +63,75 @@ public:
             { nullptr,  0,                 nullptr, '\0'}
         };
 
-        // Fill in the double quotes, to match the mode and help options.
         while ((choice = getopt_long(argc, argv, "qsho:", long_options, &option_index)) != -1) {
             switch (choice) {
-            case 'h':
-                printHelp(argv);
-                exit(0);
-            case 'q':
-                stackMode = false;
-                mode = optarg;
-            case 's':
-                stackMode = true;
-                mode = optarg;
-                if (mode != "resize" && mode != "reserve" && mode != "nosize") {
-                    // The first line of error output has to be a 'fixed' message for the autograder
-                    // to show it to you.
-                    cerr << "Error: invalid mode" << "\n";
-                    // The second line can provide more information, but you won't see it on the AG.
-                    cerr << "  I don't know recognize: " << mode << "\n";
+                case 'h':
+                    printHelp(argv);
+                    exit(0);
+                case 'q':
+                    stackMode = false;
+                    ++modeN;
+                    break;
+                case 's':
+                    stackMode = true;
+                    ++modeN;
+                    break;
+                case 'o':
+                    outputMode = optarg;
+                    if (outputMode.length() == 0) {
+                        cerr << "Output mode must be specified\n";
+                        exit(1);
+                    } else if (outputMode != "M" && outputMode != "L") {
+                        cerr << "Unknown command line option\n";
+                        exit(1);
+                    }
+                    break;
+                
+                default:
+                    cerr << "Unknown command line option\n";
                     exit(1);
-                } // if
-                modeSpecified = true;
-                break;
-            case 'o':
-                mode = 'o';
             } // switch
-        } // while
 
-        if (!modeSpecified) {
-            cerr << "Error: no mode specified" << endl;
-            exit(1);
-        } // if
+            if (modeN == 0) {
+                cerr << "Stack or queue must be specified\n";
+                exit(1);
+            } else if (modeN > 1) {
+                cerr << "Stack or queue can only be specified once\n";
+                exit(1);
+            }
+        } // while
     } // getMode()
 
     void readMap() {
-        char mapMode;
+        string mapMode;
         cin >> mapMode;
 
-        if (mapMode == 'M') {
-            loadM();
-        } else if (mapMode == 'L') {
-            loadL();
+        if (mapMode != "M" && mapMode != "L") {
+            cerr << "Invalid input mode\n";
+            exit(1);
         }
+
+        cin >> R;
+        if (R < 1 || R > 10) {
+            cerr << "Invalid room number\n";
+            exit(1);
+        }
+        cin >> N;
+        if (N < 1) {
+            cerr << "Invalid row number\n";
+            exit(1);
+        }
+        
+        tileVec.resize(R, vector<vector<Tile>>(N, vector<Tile>(N)));
+
+        mapMode == "M"? loadM() : loadL();
     } //readMap()
 
     void solve(bool stackMode) {
         deque<Location> locDeque;
         Location next = start;
         locDeque.push_back(next);
-        mapVec[next.room][next.row][next.col].isVisited = true;
+        tileVec[next.room][next.row][next.col].isVisited = true;
 
         while (!locDeque.empty()) {
             if (stackMode) {
@@ -122,9 +142,9 @@ public:
                 locDeque.pop_front();
             }
 
-            char c = mapVec[next.room][next.row][next.col].value;
+            char c = tileVec[next.room][next.row][next.col].value;
             if (isdigit(c)) {
-                int pipeNum = static_cast<uint32_t>(c);
+                uint32_t pipeNum = static_cast<uint32_t>(c) - static_cast<uint32_t>('0');
 
                 if (pipeNum <= R) {
                     next.set(pipeNum, next.row, next.col);
@@ -149,27 +169,87 @@ public:
 
     } // getOutput()
 
+    // testing
+    void test1() {
+        for (uint32_t i = 0; i < R; ++i) {
+            cout << "//castle room " << i << "\n";
+            for (uint32_t j = 0; j < N; ++j) {
+                for (uint32_t k = 0; k < N ;++k) {
+                    cout << tileVec[i][j][k].value;
+                }
+                cout << '\n';
+            }
+        }
+    }
+
 private:
     void loadM() {
-        cin >> R;
-        cin >> N;
-
-        mapVec.resize(R, vector<vector<Tile>>(N, vector<Tile>(N)));
-        char c;
+        char value;
         string junk;
+        uint32_t roomN = 0;
+        uint32_t rowN = 0;
+        uint32_t colN = 0;
 
-        while (cin >> c) {
-            if (c == '/') {
+        while (cin >> value) {
+            if (value == '/') {
                 getline(cin, junk);
+                continue;
+            } else if ( value == 'C') {
+                end.set(roomN, rowN, colN);
+            } else if (value == 'S') {
+                start.set(roomN, rowN, colN);
+            } else if (value != '#' && value != '!' && !isdigit(value) && value != '.') {
+                cerr << "Unknown map character\n";
+                exit(1);
             }
+            tileVec[roomN][rowN][colN].value = value;
 
-            cin >> N >> junk;
+            
+            if (colN == N - 1) {
+                colN = 0;
+                if (rowN == N - 1) {
+                    rowN = 0;
+                    ++roomN;
+                } else {
+                    ++rowN;
+                }
+            } else {
+                ++colN;
+            }
         }
     } // loadM()
 
     void loadL() {
-        cin >> R;
-        cin >> N;
+        char value;
+        char junk;
+        string junkLine;
+        uint32_t roomN;
+        uint32_t rowN;
+        uint32_t colN;
+
+        while (cin >> junk) {
+            if (junk == '/') {
+                getline(cin, junkLine);
+                continue;
+            } // if
+
+            cin >> roomN >> junk >> rowN >> junk >> colN >> junk >> value >> junk;
+
+            if (roomN >= R) {
+                cerr << "Invalid room number\n";
+                exit(1);
+            } else if (rowN >= N) {
+                cerr << "Invalid row number\n";
+                exit(1);
+            } else if (colN >= N) {
+                cerr << "Invalid col number\n";
+                exit(1);
+            } else if (!isdigit(value) && value != 'C' && value != 'S' && value != '#' && value != '!' && value !='.') {
+                cerr << "Unknown map character\n";
+                exit(1);
+            }
+            tileVec[roomN][rowN][colN].value = value;
+        }
     } // loadL()
 
     void printHelp(char *argv[]) {
@@ -181,13 +261,16 @@ private:
 
     bool checkAndPush(const Location &loc, deque<Location> &locDqueue) {
         if (loc.room <= R && loc.row <= N && loc.col <= N) {
-            Tile &curTile = mapVec[loc.room][loc.col][loc.row];
+            Tile &curTile = tileVec[loc.room][loc.col][loc.row];
             if (!curTile.isVisited && curTile.value != '#' && curTile.value != '!') {
                 locDqueue.push_back(loc);
                 curTile.isVisited = true;
+
+                return true;
             }
         }
-        
+
+        return false;
     } // checkAndPush()
 
     void outputM() {
@@ -200,7 +283,7 @@ private:
 };
 
 int main(int argc, char* argv[]) {
-    ios_base::sync_with_stdio(false);
+    // ios_base::sync_with_stdio(false);
     xcode_redirect(argc, argv);
 
     Solver s;
@@ -208,9 +291,10 @@ int main(int argc, char* argv[]) {
     s.getMode(argc, argv);
     s.readMap();
 
-    s.solve(false);
+    // s.solve(false);
 
-    s.getOutput();
+    // s.getOutput();
+    s.test1();
 
     return 0;
 }
