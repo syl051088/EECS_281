@@ -9,8 +9,14 @@ using namespace std;
 
 struct Tile {
 public:
-    bool isVisited = false;
-    char value = 'c';
+    bool isVisited;
+    char value;
+
+public:
+    Tile() {
+        isVisited = false;
+        value = '.';
+    };
 };
 
 struct Location {
@@ -18,6 +24,13 @@ public:
     uint32_t room;
     uint32_t row;
     uint32_t col;
+
+public:
+    void set(uint32_t room, uint32_t row, uint32_t col) {
+        this->room = room;
+        this->row = row;
+        this->col = col;
+    }
 };
 
 class Solver{
@@ -43,11 +56,11 @@ public:
         int choice;
         int option_index = 0;
         option long_options[] = {
-            { "queue", no_argument, nullptr, 'q' },
-            { "stack", no_argument, nullptr, 's' },
-            { "help", no_argument, nullptr, 'h' },
-            { "output", required_argument, nullptr, 'o'},
-            { nullptr, 0,                 nullptr, '\0' }
+            { "queue",  no_argument,       nullptr, 'q' },
+            { "stack",  no_argument,       nullptr, 's' },
+            { "help",   no_argument,       nullptr, 'h' },
+            { "output", required_argument, nullptr, 'o' },
+            { nullptr,  0,                 nullptr, '\0'}
         };
 
         // Fill in the double quotes, to match the mode and help options.
@@ -88,11 +101,11 @@ public:
         cin >> mapMode;
 
         if (mapMode == 'M') {
-            load_m();
+            loadM();
         } else if (mapMode == 'L') {
-            load_l();
+            loadL();
         }
-    }
+    } //readMap()
 
     void solve(bool stackMode) {
         deque<Location> locDeque;
@@ -108,11 +121,36 @@ public:
                 next = locDeque.front();
                 locDeque.pop_front();
             }
+
+            char c = mapVec[next.room][next.row][next.col].value;
+            if (isdigit(c)) {
+                int pipeNum = static_cast<uint32_t>(c);
+
+                if (pipeNum <= R) {
+                    next.set(pipeNum, next.row, next.col);
+                }
+            }
+            // N
+            next.set(next.room, next.row - 1, next.col);
+            checkAndPush(next, locDeque);
+            // E
+            next.set(next.room, next.row, next.col + 1);
+            checkAndPush(next, locDeque);
+            // S
+            next.set(next.room, next.row + 1, next.col);
+            checkAndPush(next, locDeque);
+            // W
+            next.set(next.room, next.row, next.col - 1);
+            checkAndPush(next, locDeque);
         }
-    }
+    } // solve()
+
+    void getOutput() {
+
+    } // getOutput()
 
 private:
-    void load_m() {
+    void loadM() {
         cin >> R;
         cin >> N;
 
@@ -125,14 +163,14 @@ private:
                 getline(cin, junk);
             }
 
-            cin >> N;
+            cin >> N >> junk;
         }
-    }
+    } // loadM()
 
-    void load_l() {
+    void loadL() {
         cin >> R;
         cin >> N;
-    }
+    } // loadL()
 
     void printHelp(char *argv[]) {
     cout << "Usage: " << argv[0] << " [-m resize|reserve|nosize]|-h" << endl;
@@ -140,6 +178,25 @@ private:
     cout << "reading data into a vector, the difference between resize and reserve," << endl;
     cout << "and how to properly read until end-of-file." << endl;
     } // printHelp()
+
+    bool checkAndPush(const Location &loc, deque<Location> &locDqueue) {
+        if (loc.room <= R && loc.row <= N && loc.col <= N) {
+            Tile &curTile = mapVec[loc.room][loc.col][loc.row];
+            if (!curTile.isVisited && curTile.value != '#' && curTile.value != '!') {
+                locDqueue.push_back(loc);
+                curTile.isVisited = true;
+            }
+        }
+        
+    } // checkAndPush()
+
+    void outputM() {
+
+    } // outputM
+
+    void outputL() {
+
+    } //outputL
 };
 
 int main(int argc, char* argv[]) {
@@ -152,6 +209,8 @@ int main(int argc, char* argv[]) {
     s.readMap();
 
     s.solve(false);
+
+    s.getOutput();
 
     return 0;
 }
