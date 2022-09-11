@@ -52,6 +52,7 @@ private:
 public:
     void getMode(int argc, char * argv[]) {
         uint32_t modeN = 0;
+        outputMode = "M";
 
         // These are used with getopt_long()
         opterr = false; // Let us handle all error output for command line options
@@ -134,6 +135,7 @@ public:
         tileDiscovered = 0;
         Location next = start;
         locDeque.push_back(next);
+        ++tileDiscovered;
         tileVec[next.room][next.row][next.col].isVisited = true;
 
         while (!locDeque.empty()) {
@@ -193,7 +195,7 @@ public:
         while (!(current == start)) {
             previous = tileVec[current.room][current.row][current.col].prev;
             if (current.room != previous.room) {
-                backDeq.push_back('p');
+                backDeq.push_back(static_cast<char>(current.room + static_cast<uint32_t>('0')));
             } else if (current.row == previous.row + 1) {
                 backDeq.push_back('s');
             } else if (current.row == previous.row - 1) {
@@ -286,19 +288,13 @@ private:
     } // loadL()
 
     void printHelp(char *argv[]) {
-    cout << "Usage: " << argv[0] << " [-s|q -o M|L\n";
-    cout << "This program is to help you learn command-line processing,\n";
-    cout << "reading data into a vector, the difference between resize and reserve,\n";
-    cout << "and how to properly read until end-of-file.\n";
+    cout << "Usage: " << argv[0] << " [-s|q -o M|L]\n";
     } // printHelp()
 
     bool checkAndPush(const Location &loc, deque<Location> &locDqueue, const Location &prev) {
-        if (loc.room <= R && loc.row <= N && loc.col <= N) {
+        if (loc.room < R && loc.row < N && loc.col < N) {
             Tile &curTile = tileVec[loc.room][loc.row][loc.col];
-            if (curTile.value == 'C') {
-                curTile.isVisited = true;
-                return true;
-            } // if we find the end
+            
             if (!curTile.isVisited && curTile.value != '#' && curTile.value != '!') {
                 if (isdigit(curTile.value)) {
                     uint32_t pipeNum = static_cast<uint32_t>(curTile.value) - static_cast<uint32_t>('0');
@@ -310,6 +306,10 @@ private:
                 curTile.isVisited = true;
                 curTile.prev = prev;
                 ++tileDiscovered;   // add to search container successfully
+
+                if (curTile.value == 'C') {
+                    return true;
+                } // if we find the end
             }
         }
 
@@ -355,19 +355,23 @@ private:
         cout << "Path taken:\n";
         Location current = start;
         while (!backDeq.empty()) {
-            cout << '(' << current.room << ',' << current.row << ',' << current.col << ',' 
-            << backDeq.back() << ")\n";
+            cout << '(' << current.room << ',' << current.row << ',' << current.col << ',';
 
             if (backDeq.back() == 'n') {
+                cout << backDeq.back() << ")\n";
                 --current.row; 
             } else if (backDeq.back() == 's') {
+                cout << backDeq.back() << ")\n";
                 ++current.row;
             } else if (backDeq.back() == 'e') {
+                cout << backDeq.back() << ")\n";
                 ++current.col;
             } else if (backDeq.back() == 'w') {
+                cout << backDeq.back() << ")\n";
                 --current.col;
             } else {
                 current.room = static_cast<uint32_t>(backDeq.back()) - static_cast<uint32_t>('0');
+                cout << "p)\n";
             }
             backDeq.pop_back();
         } // while
@@ -375,7 +379,7 @@ private:
 };
 
 int main(int argc, char* argv[]) {
-    // ios_base::sync_with_stdio(false);
+    ios_base::sync_with_stdio(false);
     xcode_redirect(argc, argv);
 
     Solver s;
