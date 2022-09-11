@@ -4,6 +4,7 @@
         "iterator": "cpp",
         "iosfwd": "cpp",
         "iostream": "cpp",
-        "deque": "cpp"
+        "deque": "cpp",
+        "algorithm": "cpp"
     }
 }

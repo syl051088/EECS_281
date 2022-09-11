@@ -27,9 +27,9 @@ public:
 
 struct Tile {
 public:
-    bool isVisited;
+    char direction;
     char value;
-    Location prev;
+    bool isVisited;
 
 public:
     Tile() {
@@ -38,7 +38,7 @@ public:
     };
 };
 
-class Solver{
+class Solver {
 private:
     vector<vector<vector<Tile>>> tileVec;
     Location start;
@@ -50,6 +50,10 @@ private:
     bool stackMode;
 
 public:
+    Solver () {
+        tileDiscovered = 0;
+    }
+
     void getMode(int argc, char * argv[]) {
         uint32_t modeN = 0;
         outputMode = "M";
@@ -132,7 +136,6 @@ public:
 
     void solve() {
         deque<Location> locDeque;
-        tileDiscovered = 0;
         Location next = start;
         locDeque.push_back(next);
         ++tileDiscovered;
@@ -145,38 +148,37 @@ public:
             } else {
                 next = locDeque.front();
                 locDeque.pop_front();
-            }
-
+            } 
+            
             char value = tileVec[next.room][next.row][next.col].value;
             Location temp = next;
             if (isdigit(value)) {
                 uint32_t pipeNum = static_cast<uint32_t>(value) - static_cast<uint32_t>('0');
-
-                temp.set(pipeNum, next.row, next.col);
-                if (checkAndPush(temp, locDeque, next)) {
+                temp.room = pipeNum;
+                if (checkAndPush(temp, locDeque, static_cast<char>(next.room +'0'))) {
                     break;
                 };
                 continue;
             }
-            
+
             // N
             temp.set(next.room, next.row - 1, next.col);
-            if (checkAndPush(temp, locDeque, next)) {
+            if (checkAndPush(temp, locDeque, 'n')) {
                 break;
             }
             // E
             temp.set(next.room, next.row, next.col + 1);
-            if (checkAndPush(temp, locDeque, next)) {
+            if (checkAndPush(temp, locDeque, 'e')) {
                 break;
             }
             // S
             temp.set(next.room, next.row + 1, next.col);
-            if (checkAndPush(temp, locDeque, next)) {
+            if (checkAndPush(temp, locDeque, 's')) {
                 break;
             }
             // W
             temp.set(next.room, next.row, next.col - 1);
-            if (checkAndPush(temp, locDeque, next)) {
+            if (checkAndPush(temp, locDeque, 'w')) {
                 break;
             }
         }
@@ -190,22 +192,27 @@ public:
 
         deque<char> backDeq;
         Location current = end;
-        Location previous= end;
+        char direction;
 
         while (!(current == start)) {
-            previous = tileVec[current.room][current.row][current.col].prev;
-            if (current.room != previous.room) {
-                backDeq.push_back(static_cast<char>(current.room + static_cast<uint32_t>('0')));
-            } else if (current.row == previous.row + 1) {
-                backDeq.push_back('s');
-            } else if (current.row == previous.row - 1) {
+            direction = tileVec[current.room][current.row][current.col].direction;
+
+            if (direction == 'n') {
+                current.row++;
                 backDeq.push_back('n');
-            } else if (current.col == previous.col + 1) {
+            } else if (direction == 'e') {
+                current.col--;
                 backDeq.push_back('e');
-            } else {
+            } else if (direction == 's') {
+                current.row--;
+                backDeq.push_back('s');
+            } else if (direction == 'w') {
+                current.col++;
                 backDeq.push_back('w');
+            } else {
+                backDeq.push_back(static_cast<char>(current.room + static_cast<uint32_t>('0')));
+                current.room = static_cast<uint32_t>(direction) - static_cast<uint32_t>('0');
             }
-            current = previous;
         } // while
 
         outputMode == "M" ? outputM(backDeq) : outputL(backDeq);
@@ -291,21 +298,15 @@ private:
     cout << "Usage: " << argv[0] << " [-s|q -o M|L]\n";
     } // printHelp()
 
-    bool checkAndPush(const Location &loc, deque<Location> &locDqueue, const Location &prev) {
+    bool checkAndPush(const Location &loc, deque<Location> &locDqueue, char direction) {
         if (loc.room < R && loc.row < N && loc.col < N) {
             Tile &curTile = tileVec[loc.room][loc.row][loc.col];
             
             if (!curTile.isVisited && curTile.value != '#' && curTile.value != '!') {
-                if (isdigit(curTile.value)) {
-                    uint32_t pipeNum = static_cast<uint32_t>(curTile.value) - static_cast<uint32_t>('0');
-                    if (pipeNum > R) {
-                        return false;
-                    } // if the pipe num is larger than room num
-                }
                 locDqueue.push_back(loc);
+                ++tileDiscovered;
                 curTile.isVisited = true;
-                curTile.prev = prev;
-                ++tileDiscovered;   // add to search container successfully
+                curTile.direction = direction; // add to search container successfully
 
                 if (curTile.value == 'C') {
                     return true;
@@ -388,6 +389,5 @@ int main(int argc, char* argv[]) {
     s.readMap();
     s.solve();
     s.getOutput();
-
     return 0;
 }
