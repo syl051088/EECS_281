@@ -6,7 +6,7 @@
             "type": "lldb",
             "request": "launch",
             "preLaunchTask": "build debug executable",
-            "program": "${workspaceFolder}/project1_debug",
+            "program": "${workspaceFolder}/superMarco_debug",
             "stdio": [
                 null, // redirect stdin
                 null, // redirect stdout

@@ -41,13 +41,13 @@ public:
 class Solver{
 private:
     vector<vector<vector<Tile>>> tileVec;
-    bool stackMode;
+    Location start;
+    Location end;
     uint32_t R;
     uint32_t N;
     uint32_t tileDiscovered;
-    Location start;
-    Location end;
     string outputMode;
+    bool stackMode;
 
 public:
     void getMode(int argc, char * argv[]) {
