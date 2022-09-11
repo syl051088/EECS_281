@@ -1,3 +1,4 @@
+// B99292359FFD910ED13A7E6C7F9705B8742F0D79
 #include <iostream>
 #include <deque>
 #include <string>
@@ -17,6 +18,10 @@ public:
         this->room = room;
         this->row = row;
         this->col = col;
+    }
+
+    bool operator==(const Location &loc) {
+        return loc.room == room && loc.row == row && loc.col == col;
     }
 };
 
@@ -39,15 +44,12 @@ private:
     bool stackMode;
     uint32_t R;
     uint32_t N;
+    uint32_t tileDiscovered;
     Location start;
     Location end;
     string outputMode;
 
 public:
-    Solver() {
-    
-    }
-
     void getMode(int argc, char * argv[]) {
         uint32_t modeN = 0;
 
@@ -127,8 +129,9 @@ public:
         mapMode == "M"? loadM() : loadL();
     } //readMap()
 
-    void solve(bool stackMode) {
+    void solve() {
         deque<Location> locDeque;
+        tileDiscovered = 0;
         Location next = start;
         locDeque.push_back(next);
         tileVec[next.room][next.row][next.col].isVisited = true;
@@ -142,45 +145,69 @@ public:
                 locDeque.pop_front();
             }
 
-            char c = tileVec[next.room][next.row][next.col].value;
-            if (isdigit(c)) {
-                uint32_t pipeNum = static_cast<uint32_t>(c) - static_cast<uint32_t>('0');
+            char value = tileVec[next.room][next.row][next.col].value;
+            Location temp = next;
+            if (isdigit(value)) {
+                uint32_t pipeNum = static_cast<uint32_t>(value) - static_cast<uint32_t>('0');
 
-                if (pipeNum <= R) {
-                    next.set(pipeNum, next.row, next.col);
-                }
+                temp.set(pipeNum, next.row, next.col);
+                if (checkAndPush(temp, locDeque, next)) {
+                    break;
+                };
+                continue;
             }
+            
             // N
-            next.set(next.room, next.row - 1, next.col);
-            checkAndPush(next, locDeque);
+            temp.set(next.room, next.row - 1, next.col);
+            if (checkAndPush(temp, locDeque, next)) {
+                break;
+            }
             // E
-            next.set(next.room, next.row, next.col + 1);
-            checkAndPush(next, locDeque);
+            temp.set(next.room, next.row, next.col + 1);
+            if (checkAndPush(temp, locDeque, next)) {
+                break;
+            }
             // S
-            next.set(next.room, next.row + 1, next.col);
-            checkAndPush(next, locDeque);
+            temp.set(next.room, next.row + 1, next.col);
+            if (checkAndPush(temp, locDeque, next)) {
+                break;
+            }
             // W
-            next.set(next.room, next.row, next.col - 1);
-            checkAndPush(next, locDeque);
+            temp.set(next.room, next.row, next.col - 1);
+            if (checkAndPush(temp, locDeque, next)) {
+                break;
+            }
         }
     } // solve()
 
     void getOutput() {
-
-    } // getOutput()
-
-    // testing
-    void test1() {
-        for (uint32_t i = 0; i < R; ++i) {
-            cout << "//castle room " << i << "\n";
-            for (uint32_t j = 0; j < N; ++j) {
-                for (uint32_t k = 0; k < N ;++k) {
-                    cout << tileVec[i][j][k].value;
-                }
-                cout << '\n';
-            }
+        if (!tileVec[end.room][end.row][end.col].isVisited) {
+            cout << "No solution, " << tileDiscovered << " tiles discovered.\n";
+            return;
         }
-    }
+
+        deque<char> backDeq;
+        Location current = end;
+        Location previous= end;
+
+        while (!(current == start)) {
+            previous = tileVec[current.room][current.row][current.col].prev;
+            if (current.room != previous.room) {
+                backDeq.push_back('p');
+            } else if (current.row == previous.row + 1) {
+                backDeq.push_back('s');
+            } else if (current.row == previous.row - 1) {
+                backDeq.push_back('n');
+            } else if (current.col == previous.col + 1) {
+                backDeq.push_back('e');
+            } else {
+                backDeq.push_back('w');
+            }
+            current = previous;
+        } // while
+
+        outputMode == "M" ? outputM(backDeq) : outputL(backDeq);
+    } // getOutput()
 
 private:
     void loadM() {
@@ -249,37 +276,102 @@ private:
                 exit(1);
             }
             tileVec[roomN][rowN][colN].value = value;
+
+            if (value == 'C') {
+                end.set(roomN, rowN, colN);
+            } else if (value == 'S') {
+                start.set(roomN, rowN, colN);
+            }
         }
     } // loadL()
 
     void printHelp(char *argv[]) {
-    cout << "Usage: " << argv[0] << " [-m resize|reserve|nosize]|-h" << endl;
-    cout << "This program is to help you learn command-line processing," << endl;
-    cout << "reading data into a vector, the difference between resize and reserve," << endl;
-    cout << "and how to properly read until end-of-file." << endl;
+    cout << "Usage: " << argv[0] << " [-s|q -o M|L\n";
+    cout << "This program is to help you learn command-line processing,\n";
+    cout << "reading data into a vector, the difference between resize and reserve,\n";
+    cout << "and how to properly read until end-of-file.\n";
     } // printHelp()
 
-    bool checkAndPush(const Location &loc, deque<Location> &locDqueue) {
+    bool checkAndPush(const Location &loc, deque<Location> &locDqueue, const Location &prev) {
         if (loc.room <= R && loc.row <= N && loc.col <= N) {
-            Tile &curTile = tileVec[loc.room][loc.col][loc.row];
+            Tile &curTile = tileVec[loc.room][loc.row][loc.col];
+            if (curTile.value == 'C') {
+                curTile.isVisited = true;
+                return true;
+            } // if we find the end
             if (!curTile.isVisited && curTile.value != '#' && curTile.value != '!') {
+                if (isdigit(curTile.value)) {
+                    uint32_t pipeNum = static_cast<uint32_t>(curTile.value) - static_cast<uint32_t>('0');
+                    if (pipeNum > R) {
+                        return false;
+                    } // if the pipe num is larger than room num
+                }
                 locDqueue.push_back(loc);
                 curTile.isVisited = true;
-
-                return true;
+                curTile.prev = prev;
+                ++tileDiscovered;   // add to search container successfully
             }
         }
 
         return false;
     } // checkAndPush()
 
-    void outputM() {
+    void outputM(deque<char> &backDeq) {
+        Location current = start;
+        while (!backDeq.empty()) {
+            if (backDeq.back() == 'n') {
+                tileVec[current.room][current.row][current.col].value = 'n';
+                --current.row; 
+            } else if (backDeq.back() == 's') {
+                tileVec[current.room][current.row][current.col].value = 's';
+                ++current.row;
+            } else if (backDeq.back() == 'e') {
+                tileVec[current.room][current.row][current.col].value = 'e';
+                ++current.col;
+            } else if (backDeq.back() == 'w') {
+                tileVec[current.room][current.row][current.col].value = 'w';
+                --current.col;
+            } else {
+                tileVec[current.room][current.row][current.col].value = 'p';
+                current.room = static_cast<uint32_t>(backDeq.back()) - static_cast<uint32_t>('0');
+            }
+            backDeq.pop_back();
+        }
 
-    } // outputM
+        cout << "Start in room " << start.room << ", row " << start.row << ", column " << start.col << "\n";
 
-    void outputL() {
+        for (uint32_t i =0; i < R; ++i) {
+            cout << "//castle room " << i << "\n";
+            for (uint32_t j = 0; j < N; ++j) {
+                for (uint32_t k = 0; k < N; ++k) {
+                    cout << tileVec[i][j][k].value;
+                } // for k
+                cout << "\n";
+            } // for j
+        } // for i
+    } // outputM()
 
-    } //outputL
+    void outputL(deque<char> &backDeq) {
+        cout << "Path taken:\n";
+        Location current = start;
+        while (!backDeq.empty()) {
+            cout << '(' << current.room << ',' << current.row << ',' << current.col << ',' 
+            << backDeq.back() << ")\n";
+
+            if (backDeq.back() == 'n') {
+                --current.row; 
+            } else if (backDeq.back() == 's') {
+                ++current.row;
+            } else if (backDeq.back() == 'e') {
+                ++current.col;
+            } else if (backDeq.back() == 'w') {
+                --current.col;
+            } else {
+                current.room = static_cast<uint32_t>(backDeq.back()) - static_cast<uint32_t>('0');
+            }
+            backDeq.pop_back();
+        } // while
+    } //outputL()
 };
 
 int main(int argc, char* argv[]) {
@@ -290,11 +382,8 @@ int main(int argc, char* argv[]) {
     
     s.getMode(argc, argv);
     s.readMap();
-
-    // s.solve(false);
-
-    // s.getOutput();
-    s.test1();
+    s.solve();
+    s.getOutput();
 
     return 0;
 }
