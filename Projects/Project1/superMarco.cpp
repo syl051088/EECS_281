@@ -86,24 +86,24 @@ public:
                 case 'o':
                     outputMode = optarg;
                     if (outputMode.length() == 0) {
-                        cerr << "Output mode must be specified\n";
+                        cerr << "Output mode must be specified" << endl;
                         exit(1);
                     } else if (outputMode != "M" && outputMode != "L") {
-                        cerr << "Unknown command line option\n";
+                        cerr << "Unknown command line option" << endl;
                         exit(1);
                     }
                     break;
                 
                 default:
-                    cerr << "Unknown command line option\n";
+                    cerr << "Unknown command line option" << endl;
                     exit(1);
             } // switch
 
             if (modeN == 0) {
-                cerr << "Stack or queue must be specified\n";
+                cerr << "Stack or queue must be specified" << endl;
                 exit(1);
             } else if (modeN > 1) {
-                cerr << "Stack or queue can only be specified once\n";
+                cerr << "Stack or queue can only be specified once" << endl;
                 exit(1);
             }
         } // while
@@ -114,18 +114,18 @@ public:
         cin >> mapMode;
 
         if (mapMode != "M" && mapMode != "L") {
-            cerr << "Invalid input mode\n";
+            cerr << "Invalid input mode" << endl;
             exit(1);
         }
 
         cin >> R;
         if (R < 1 || R > 10) {
-            cerr << "Invalid room number\n";
+            cerr << "Invalid room number" << endl;
             exit(1);
         }
         cin >> N;
         if (N < 1) {
-            cerr << "Invalid row number\n";
+            cerr << "Invalid row number" << endl;
             exit(1);
         }
         
@@ -235,7 +235,7 @@ private:
             } else if (value == 'S') {
                 start.set(roomN, rowN, colN);
             } else if (value != '#' && value != '!' && !isdigit(value) && value != '.') {
-                cerr << "Unknown map character\n";
+                cerr << "Unknown map character" << endl;
                 exit(1);
             }
             tileVec[roomN][rowN][colN].value = value;
@@ -272,16 +272,16 @@ private:
             cin >> roomN >> junk >> rowN >> junk >> colN >> junk >> value >> junk;
 
             if (roomN >= R) {
-                cerr << "Invalid room number\n";
+                cerr << "Invalid room number" << endl;
                 exit(1);
             } else if (rowN >= N) {
-                cerr << "Invalid row number\n";
+                cerr << "Invalid row number" << endl;
                 exit(1);
             } else if (colN >= N) {
-                cerr << "Invalid col number\n";
+                cerr << "Invalid col number" << endl;
                 exit(1);
             } else if (!isdigit(value) && value != 'C' && value != 'S' && value != '#' && value != '!' && value !='.') {
-                cerr << "Unknown map character\n";
+                cerr << "Unknown map character" << endl;
                 exit(1);
             }
             tileVec[roomN][rowN][colN].value = value;

@@ -8,7 +8,7 @@
             "preLaunchTask": "build debug executable",
             "program": "${workspaceFolder}/superMarco_debug",
             "stdio": [
-                "Sample-Big-L.txt", // redirect stdin
+                null, // redirect stdin
                 null, // redirect stdout
                 null // redirect stderr
             ],
