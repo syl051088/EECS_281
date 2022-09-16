@@ -21,7 +21,7 @@
 # TODO (begin) #
 #######################
 # Change IDENTIFIER to match the project identifier given in the project spec.
-IDENTIFIER = 
+IDENTIFIER = 1CAEF3A0FEDD0DEC26BA9808C69D4D22A9962768
 
 # Change EXECUTABLE to match the command name given in the project spec.
 EXECUTABLE  = balanced
@@ -262,7 +262,7 @@ help:
 # % g++ -MM *.cpp
 #
 # ADD YOUR OWN DEPENDENCIES HERE
-
+# main.o: main.cpp
 ######################
 # TODO (end) #
 ######################
