@@ -1,4 +1,4 @@
-// 9504853406CBAC39EE89AA3AD238AA12CA198043
+// Project Identifier: 9504853406CBAC39EE89AA3AD238AA12CA198043
 #include <iostream>
 #include <getopt.h>
 #include "ZombieGame.h"
@@ -12,6 +12,8 @@
 #include "Functor.h"
 #include "P2random.h"
 using namespace std;
+
+
 
 void Game::getMode(int argc, char * argv[]) {
 
@@ -54,25 +56,19 @@ void Game::readHeader() {
     string junk;
     getline(cin, junk);
     cin >> junk >> quiverCapacity >> junk >> randomSeed >> junk >> maxRandDistance 
-        >> junk >> maxRandSpeed >> junk >> maxRandHealth;
+        >> junk >> maxRandSpeed >> junk >> maxRandHealth >> junk;
     P2random::initialize(randomSeed, maxRandDistance, maxRandSpeed, maxRandHealth);
-    currentRound = 1;
 }
 
 void Game::printHelp(char *argv[]) {
     cout << "Usage: " << argv[0] << " [-m| -s <N> | -v]\n";
 } // printHelp()
 
-void Game::createPlayer() {
-    player.quiver_capacity = quiverCapacity;
-
-    
-}
-
 void Game::createZombie(const string &name, uint32_t distance, uint32_t speed, uint32_t health) {
-    Zombie *zombie = new Zombie(name, distance, speed, health);
-    zombiePQ.push(zombie);
+    Zombie zombie (name, distance, speed, health);
+    
     zombieDeq.push_back(zombie);
+    zombiePQ.push(&zombieDeq.back());
     if (mode.vMode) {
         cout << "Created: " << name << " " << "(distance: " << distance << ", speed: " << speed 
                 << ", health: " << health << ")\n";
@@ -81,11 +77,7 @@ void Game::createZombie(const string &name, uint32_t distance, uint32_t speed, u
 
 void Game::readRound() {
     string junk;
-
-    if (!(cin >> junk)) {
-        return;
-    }
-    cin >> junk >> zombieRound;
+    cin >>junk >> zombieRound;
 }
 
 void Game::readNewZombie() {
@@ -108,21 +100,98 @@ void Game::readNewZombie() {
         createZombie(name, distance, speed, health);
     }
     for (uint32_t i = 1; i <= namedZombie; ++i) {
-        cin >> name >> junk >> distance >> junk >> speed >> junk >> health;
+        cin >> name >> junk >> distance;
+        cin >> junk >> speed;          
+        cin >> junk >> health;            
         createZombie(name, distance, speed, health);
+    }
+    futureRound = !(cin >> junk)? false : true;
+}
+
+void Game::playerAttack() {
+    while (player.quiver_capacity != 0 && !zombiePQ.empty()) {
+        Zombie* curZombie = zombiePQ.top();
+        zombiePQ.pop();
+        if (player.quiver_capacity < curZombie->health) {
+            curZombie->health -= player.quiver_capacity;
+            player.quiver_capacity = 0;
+            zombiePQ.push(curZombie);
+
+        } else {
+            player.quiver_capacity -= curZombie->health;
+            curZombie->health = 0;
+            deadDeq.push_back(curZombie);
+            updateMedian(curZombie->roundsAlive);
+            if (mode.vMode) {
+                cout << "Destroyed: " << curZombie->name << " (distance: " << curZombie->distance
+                    << ", speed: " << curZombie->speed << ", health: " << curZombie->health << ")\n";
+            }
+            lastEnemy = curZombie->name;
+        }
     }
 }
 
 
 uint32_t Game::getMedian() {
-    return 0;
+    if (first.size() == second.size() + 1) {
+        return first.top();
+    } else if (first.size() + 1 == second.size()) {
+        return second.top();
+    }
+    return (first.top() + second.top()) / 2;
 }
 
-void Game::medianTracker() {
+void Game::updateMedian(uint32_t roundsAlive) {
+    if (first.empty()) {
+        first.push(roundsAlive);
+    } else if (second.empty()) {
+        second.push(roundsAlive);
+    } else {
+        if (roundsAlive > first.top()) {
+        second.push(roundsAlive);
+    } else {
+        first.push(roundsAlive);
+        }
+    }
 
+    if (first.size() >= second.size() + 2) {
+        second.push(first.top());
+        first.pop();
+    } else if (first.size() + 2 <= second.size()) {
+        first.push(second.top());
+        second.pop();
+    }
 }
 
+void Game::printStats() {
+    cout << "Zombies still active: " << zombieDeq.size() - deadDeq.size() << "\n";
+    
+    size_t killedN = min(deadDeq.size(), static_cast<size_t>(mode.sModeN));
+    cout << "First zombies killed:\n";
+    
+    for (size_t i = 0; i < killedN; ++i)  {
+        cout << deadDeq[i]->name << " " << i+1 <<"\n";
+    }
+    cout << "Last zombies killed:\n";
+    for (size_t i = 0; i < killedN; ++i) {
+        cout << deadDeq[deadDeq.size() - i - 1]->name << " " << killedN - i << "\n";
+    }
 
+    size_t activeN = min(zombieDeq.size(), static_cast<size_t>(mode.sModeN));
+    cout << "Most active zombies:\n";
+    sort(zombieDeq.begin(), zombieDeq.end(), MostActive());
+
+    for (size_t i = 0; i < activeN; ++i) {
+        cout << zombieDeq[i].name << " " << zombieDeq[i].roundsAlive << "\n";
+    }
+    cout << "Least active zombies:\n";
+    sort(zombieDeq.begin(), zombieDeq.end(), SwapName());
+
+    for (size_t i = 0; i < activeN; ++i) {
+        cout << zombieDeq[zombieDeq.size() - i - 1].name << " " << zombieDeq[zombieDeq.size() - i - 1].roundsAlive << "\n";
+    }
+
+}
 
 
 int main(int argc, char* argv[]) {
@@ -131,9 +200,6 @@ int main(int argc, char* argv[]) {
 
     Game g;
     g.getMode(argc, argv);
-    // g.readHeader();
-
-    // g.readRound();
     g.test01();
 
     return 0;
