@@ -1,4 +1,4 @@
-// Project identifier: TODO
+// Project identifier: 0E04A31E0D60C01986ACB20081C9D8722A1899B6
 
 /*
  * Compile this test against your .h files to make sure they compile. We
@@ -237,7 +237,7 @@ int main() {
     std::cout << std::endl;
 
     std::cout << "Select one: ";
-    int choice {};
+    size_t choice {};
     std::cin >> choice;
     PQType const pqType = types.at(choice);
 
@@ -247,6 +247,15 @@ int main() {
     switch (pqType) {
     case PQType::Unordered:
         testPriorityQueue<UnorderedPQ>();
+        break;
+    case PQType::Sorted:
+        testPriorityQueue<SortedPQ>();
+        break;
+    case PQType::Binary:
+        testPriorityQueue<BinaryPQ>();
+        break;
+    case PQType::Pairing:
+        testPriorityQueue<PairingPQ>();
         break;
     default:
         std::cout << "Unrecognized PQ type " << pqType << " in main." << std::endl

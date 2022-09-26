@@ -23,7 +23,6 @@ public:
     // Runtime: O(1)
     explicit SortedPQ(COMP_FUNCTOR comp = COMP_FUNCTOR()) :
         BaseClass{ comp } {
-        // TODO: Implement this function, or verify that it is already done
     } // SortedPQ
 
 
@@ -33,12 +32,8 @@ public:
     // TODO: When you implement this function, uncomment the parameter names.
     template<typename InputIterator>
     SortedPQ(InputIterator start, InputIterator end, COMP_FUNCTOR comp = COMP_FUNCTOR()) :
-        BaseClass{ comp } {
-        // TODO: Implement this function
-
-        // These lines are present only so that this provided file compiles.
-        (void)start; // TODO: Delete this line
-        (void)end;   // TODO: Delete this line
+        BaseClass{ comp }, data { start, end} {
+            updatePriorities();
     } // SortedPQ
 
 
@@ -51,10 +46,8 @@ public:
     // Description: Add a new element to the PQ.
     // Runtime: O(n)
     virtual void push(const TYPE &val) {
-        // TODO: Implement this function
-
-        // This line is present only so that this provided file compiles.
-        (void)val; // TODO: Delete this line
+        auto index = std::lower_bound(data.begin(), data.end(), val);
+        data.insert(index, val);
     } // push()
 
 
@@ -66,7 +59,7 @@ public:
     //       this project.
     // Runtime: Amortized O(1)
     virtual void pop() {
-        // TODO: Implement this function
+        data.pop_back();
     } // pop()
 
 
@@ -77,11 +70,7 @@ public:
     //              element.
     // Runtime: O(1)
     virtual const TYPE &top() const {
-        // TODO: Implement this function
-
-        // These lines are present only so that this provided file compiles.
-        static TYPE temp; // TODO: Delete this line
-        return temp;      // TODO: Delete or change this line
+        return data.back();
     } // top()
 
 
@@ -105,7 +94,7 @@ public:
     //              and 'rebuilds' the PQ by fixing the PQ invariant.
     // Runtime: O(n log n)
     virtual void updatePriorities() {
-        // TODO: Implement this function
+        std::sort(data.begin(), data.end(), this->compare);
     } // updatePriorities()
 
 
