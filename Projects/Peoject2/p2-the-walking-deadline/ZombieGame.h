@@ -16,17 +16,16 @@ using namespace std;
 
 class Game {
 public:
+    deque<Zombie> zombieDeq;
     priority_queue<Zombie*, vector<Zombie*>, ETA> zombiePQ;
+    deque<Zombie*> deadDeq;
     priority_queue<uint32_t, vector<uint32_t>> first;
     priority_queue<uint32_t, vector<uint32_t>, greater<uint32_t>> second;
-    
-    deque<Zombie> zombieDeq;
-    deque<Zombie*> deadDeq;
 
     Mode mode;
 
-    uint32_t quiverCapacity;
     Player player;
+    uint32_t quiverCapacity;
 
     uint32_t randomSeed;
     uint32_t maxRandDistance;
@@ -68,57 +67,5 @@ public:
 
     void printStats();
 
-    void test01() {
-        readHeader();
-        
-        do {
-            ++currentRound;
-            // 1. Print round
-            if (mode.vMode) {
-                cout << "Round: " << currentRound << "\n";
-            }
-
-            // 2. Refill quiver
-            player.refill(quiverCapacity);
-
-            // 3.1 Update zombie position
-            for (Zombie &zombie : zombieDeq) {
-                if (zombie.health != 0) {
-                zombie.move(mode, killer, player);
-                }
-            }
-
-            // 3.2 Player dies
-            if (!player.isAlive) {
-                cout << "DEFEAT IN ROUND " << currentRound << "! " << killer << " ate your brains!" << "\n";
-                break;
-            }
-
-            // 5. New zombies appear
-            if (currentRound > zombieRound) {
-                readRound();
-            }
-            if (currentRound == zombieRound) {
-                readNewZombie();
-            }
-            // 6. Player shoots zombies
-            playerAttack();
-            
-            // 7. median print
-            if (mode.mMode && !deadDeq.empty()) {
-                cout << "At the end of round " << currentRound << ", the median zombie lifetime is " << getMedian() << "\n";
-            }
-
-            // win
-            if (!futureRound && zombiePQ.empty()) {
-                cout << "VICTORY IN ROUND " << currentRound << "! " << lastEnemy << " was the last zombie." << "\n";
-                break;
-            }
-        } while (player.isAlive || !zombiePQ.empty() || zombieRound > currentRound || futureRound);
-
-        // s mode
-        if (mode.sMode) {
-            printStats();
-        }
-    }
+    void test01();
 };

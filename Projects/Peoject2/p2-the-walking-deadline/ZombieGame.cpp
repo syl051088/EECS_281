@@ -13,8 +13,6 @@
 #include "P2random.h"
 using namespace std;
 
-
-
 void Game::getMode(int argc, char * argv[]) {
 
     // These are used with getopt_long()
@@ -190,7 +188,60 @@ void Game::printStats() {
     for (size_t i = 0; i < activeN; ++i) {
         cout << zombieDeq[zombieDeq.size() - i - 1].name << " " << zombieDeq[zombieDeq.size() - i - 1].roundsAlive << "\n";
     }
+}
 
+void Game::test01() {
+    readHeader();
+    
+    do {
+        ++currentRound;
+        // 1. Print round
+        if (mode.vMode) {
+            cout << "Round: " << currentRound << "\n";
+        }
+
+        // 2. Refill quiver
+        player.refill(quiverCapacity);
+
+        // 3.1 Update zombie position
+        for (Zombie &zombie : zombieDeq) {
+            if (zombie.health != 0) {
+            zombie.move(mode, killer, player);
+            }
+        }
+
+        // 3.2 Player dies
+        if (!player.isAlive) {
+            cout << "DEFEAT IN ROUND " << currentRound << "! " << killer << " ate your brains!" << "\n";
+            break;
+        }
+
+        // 5. New zombies appear
+        if (currentRound > zombieRound) {
+            readRound();
+        }
+        if (currentRound == zombieRound) {
+            readNewZombie();
+        }
+        // 6. Player shoots zombies
+        playerAttack();
+        
+        // 7. median print
+        if (mode.mMode && !deadDeq.empty()) {
+            cout << "At the end of round " << currentRound << ", the median zombie lifetime is " << getMedian() << "\n";
+        }
+
+        // win
+        if (!futureRound && zombiePQ.empty()) {
+            cout << "VICTORY IN ROUND " << currentRound << "! " << lastEnemy << " was the last zombie." << "\n";
+            break;
+        }
+    } while (player.isAlive || !zombiePQ.empty() || zombieRound > currentRound || futureRound);
+
+    // s mode
+    if (mode.sMode) {
+        printStats();
+    }
 }
 
 
