@@ -51,6 +51,10 @@ void Game::getMode(int argc, char * argv[]) {
 } // getMode
 
 void Game::readHeader() {
+    uint32_t randomSeed;
+    uint32_t maxRandDistance;
+    uint32_t maxRandSpeed;
+    uint32_t maxRandHealth;
     string junk;
     getline(cin, junk);
     cin >> junk >> quiverCapacity >> junk >> randomSeed >> junk >> maxRandDistance 
@@ -63,10 +67,9 @@ void Game::printHelp(char *argv[]) {
 } // printHelp()
 
 void Game::createZombie(const string &name, uint32_t distance, uint32_t speed, uint32_t health) {
-    Zombie zombie (name, distance, speed, health);
-    
+    Zombie *zombie = new Zombie(name, distance, speed, health);
     zombieDeq.push_back(zombie);
-    zombiePQ.push(&zombieDeq.back());
+    zombiePQ.push(zombie);
     if (mode.vMode) {
         cout << "Created: " << name << " " << "(distance: " << distance << ", speed: " << speed 
                 << ", health: " << health << ")\n";
@@ -98,9 +101,7 @@ void Game::readNewZombie() {
         createZombie(name, distance, speed, health);
     }
     for (uint32_t i = 1; i <= namedZombie; ++i) {
-        cin >> name >> junk >> distance;
-        cin >> junk >> speed;          
-        cin >> junk >> health;            
+        cin >> name >> junk >> distance >> junk >> speed >> junk >> health;            
         createZombie(name, distance, speed, health);
     }
     futureRound = !(cin >> junk)? false : true;
@@ -124,13 +125,12 @@ void Game::playerAttack() {
                 cout << "Destroyed: " << curZombie->name << " (distance: " << curZombie->distance
                     << ", speed: " << curZombie->speed << ", health: " << curZombie->health << ")\n";
             }
-            lastEnemy = curZombie->name;
         }
     }
 }
 
 
-uint32_t Game::getMedian() {
+uint32_t Game::getMedian() const {
     if (first.size() == second.size() + 1) {
         return first.top();
     } else if (first.size() + 1 == second.size()) {
@@ -162,31 +162,37 @@ void Game::updateMedian(uint32_t roundsAlive) {
 }
 
 void Game::printStats() {
-    cout << "Zombies still active: " << zombieDeq.size() - deadDeq.size() << "\n";
+    cout << "Zombies still active: " << zombieDeq.size() - deadDeq.size() << '\n';
     
     size_t killedN = min(deadDeq.size(), static_cast<size_t>(mode.sModeN));
     cout << "First zombies killed:\n";
     
     for (size_t i = 0; i < killedN; ++i)  {
-        cout << deadDeq[i]->name << " " << i+1 <<"\n";
+        cout << deadDeq[i]->name << " " << i+1 <<'\n';
     }
     cout << "Last zombies killed:\n";
     for (size_t i = 0; i < killedN; ++i) {
-        cout << deadDeq[deadDeq.size() - i - 1]->name << " " << killedN - i << "\n";
+        cout << deadDeq[deadDeq.size() - i - 1]->name << " " << killedN - i << '\n';
     }
 
     size_t activeN = min(zombieDeq.size(), static_cast<size_t>(mode.sModeN));
     cout << "Most active zombies:\n";
-    sort(zombieDeq.begin(), zombieDeq.end(), MostActive());
+    priority_queue<Zombie*, vector<Zombie*>, MostActive> mActivePQ(zombieDeq.begin(), zombieDeq.end());
 
-    for (size_t i = 0; i < activeN; ++i) {
-        cout << zombieDeq[i].name << " " << zombieDeq[i].roundsAlive << "\n";
+    size_t mActive = 0;
+    while (mActive < activeN) {
+        cout << mActivePQ.top()->name << " " << mActivePQ.top()->roundsAlive << '\n';
+        mActivePQ.pop();
+        ++mActive;
     }
     cout << "Least active zombies:\n";
-    sort(zombieDeq.begin(), zombieDeq.end(), SwapName());
+    priority_queue<Zombie*, vector<Zombie*>, LeastActive> lActivePQ(zombieDeq.begin(), zombieDeq.end());
 
-    for (size_t i = 0; i < activeN; ++i) {
-        cout << zombieDeq[zombieDeq.size() - i - 1].name << " " << zombieDeq[zombieDeq.size() - i - 1].roundsAlive << "\n";
+    size_t lActive = 0;
+    while (lActive < activeN) {
+        cout << lActivePQ.top()->name << " " << lActivePQ.top()->roundsAlive << '\n';
+        lActivePQ.pop();
+        ++lActive;
     }
 }
 
@@ -197,22 +203,22 @@ void Game::test01() {
         ++currentRound;
         // 1. Print round
         if (mode.vMode) {
-            cout << "Round: " << currentRound << "\n";
+            cout << "Round: " << currentRound << '\n';
         }
 
         // 2. Refill quiver
         player.refill(quiverCapacity);
 
         // 3.1 Update zombie position
-        for (Zombie &zombie : zombieDeq) {
-            if (zombie.health != 0) {
-            zombie.move(mode, killer, player);
+        for (Zombie *zombie : zombieDeq) {
+            if (zombie->health != 0) {
+            zombie->move(mode, killer, player);
             }
         }
 
         // 3.2 Player dies
         if (!player.isAlive) {
-            cout << "DEFEAT IN ROUND " << currentRound << "! " << killer << " ate your brains!" << "\n";
+            cout << "DEFEAT IN ROUND " << currentRound << "! " << killer << " ate your brains!" << '\n';
             break;
         }
 
@@ -228,12 +234,13 @@ void Game::test01() {
         
         // 7. median print
         if (mode.mMode && !deadDeq.empty()) {
-            cout << "At the end of round " << currentRound << ", the median zombie lifetime is " << getMedian() << "\n";
+            cout << "At the end of round " << currentRound << ", the median zombie lifetime is " << getMedian() << '\n';
         }
 
         // win
-        if (!futureRound && zombiePQ.empty()) {
-            cout << "VICTORY IN ROUND " << currentRound << "! " << lastEnemy << " was the last zombie." << "\n";
+        if (zombiePQ.empty()&&!futureRound) {
+
+            cout << "VICTORY IN ROUND " << currentRound << "! " << deadDeq.back()->name << " was the last zombie." << '\n';
             break;
         }
     } while (player.isAlive || !zombiePQ.empty() || zombieRound > currentRound || futureRound);
@@ -241,6 +248,13 @@ void Game::test01() {
     // s mode
     if (mode.sMode) {
         printStats();
+    }
+}
+
+void Game::cleanHeap() {
+    for (Zombie *zombie : zombieDeq) {
+        delete zombie;
+        zombie = nullptr;
     }
 }
 
@@ -252,6 +266,7 @@ int main(int argc, char* argv[]) {
     Game g;
     g.getMode(argc, argv);
     g.test01();
+    g.cleanHeap();
 
     return 0;
 }

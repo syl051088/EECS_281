@@ -3,31 +3,55 @@
 #include "Zombie.h"
 
 struct MostActive {
-    bool operator() (const Zombie &z1, const Zombie &z2) {
-        if (z1.roundsAlive > z2.roundsAlive) {
+    bool operator() (const Zombie *z1, const Zombie *z2) const {
+        if (z1->roundsAlive < z2->roundsAlive) {
             return true;
-        } else if (z1.roundsAlive < z2.roundsAlive) {
+        } else if (z1->roundsAlive > z2->roundsAlive) {
             return false;
         } else {
-            return z1.name < z2.name;
+            return z1->name > z2->name;
         }
     }
 };
 
-struct SwapName {
-    bool operator() (const Zombie &z1, const Zombie &z2) {
-        if (z1.roundsAlive > z2.roundsAlive) {
+struct LeastActive {
+    bool operator() (const Zombie *z1, const Zombie *z2) const {
+        if (z1->roundsAlive > z2->roundsAlive) {
             return true;
-        } else if (z1.roundsAlive < z2.roundsAlive) {
+        } else if (z1->roundsAlive < z2->roundsAlive) {
             return false;
         } else {
-            return z1.name > z2.name;
+            return z1->name > z2->name;
         }
     }
 };
+
+// struct MostActive {
+//     bool operator() (const Zombie &z1, const Zombie &z2) const {
+//         if (z1.roundsAlive < z2.roundsAlive) {
+//             return true;
+//         } else if (z1.roundsAlive > z2.roundsAlive) {
+//             return false;
+//         } else {
+//             return z1.name > z2.name;
+//         }
+//     }
+// };
+
+// struct LeastActive {
+//     bool operator() (const Zombie &z1, const Zombie &z2) const {
+//         if (z1.roundsAlive > z2.roundsAlive) {
+//             return true;
+//         } else if (z1.roundsAlive < z2.roundsAlive) {
+//             return false;
+//         } else {
+//             return z1.name > z2.name;
+//         }
+//     }
+// };
 
 struct ETA {
-    bool operator() (const Zombie *z1, const Zombie *z2) {
+    bool operator() (const Zombie *z1, const Zombie *z2) const{
         if (z1->distance / z1->speed > z2->distance / z2->speed) {
             return true;
         } else if (z1->distance / z1->speed < z2->distance / z2->speed) {

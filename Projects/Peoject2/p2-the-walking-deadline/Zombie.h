@@ -7,25 +7,22 @@
 #include <vector>
 #include <string>
 
-
-using namespace std;
-
 struct Zombie{
-    string name;
+    std::string name;
     uint32_t distance;
     uint32_t speed;
     uint32_t health;
     uint32_t roundsAlive;
 
 public:
-    Zombie(string n, uint32_t d, uint32_t s, uint32_t h): name{n}, distance{d}, speed{s}, health{h} {
+    Zombie(std::string n, uint32_t d, uint32_t s, uint32_t h): name{n}, distance{d}, speed{s}, health{h} {
         roundsAlive = 1;
     }
 
-    void move(const Mode &mode, string &killer, Player &player) {
+    void move(const Mode &mode, std::string &killer, Player &player) {
         distance = distance - speed < distance? distance - speed : 0;
         if (mode.vMode) {
-            cout << "Moved: " << name << " " << "(distance: " << distance << ", speed: " << speed 
+            std::cout << "Moved: " << name << " " << "(distance: " << distance << ", speed: " << speed 
                 << ", health: " << health << ")\n";
         }
 

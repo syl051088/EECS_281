@@ -16,9 +16,10 @@ using namespace std;
 
 class Game {
 public:
-    deque<Zombie> zombieDeq;
-    priority_queue<Zombie*, vector<Zombie*>, ETA> zombiePQ;
+    deque<Zombie*> zombieDeq;
     deque<Zombie*> deadDeq;
+    priority_queue<Zombie*, vector<Zombie*>, ETA> zombiePQ;
+
     priority_queue<uint32_t, vector<uint32_t>> first;
     priority_queue<uint32_t, vector<uint32_t>, greater<uint32_t>> second;
 
@@ -26,25 +27,16 @@ public:
 
     Player player;
     uint32_t quiverCapacity;
-
-    uint32_t randomSeed;
-    uint32_t maxRandDistance;
-    uint32_t maxRandSpeed;
-    uint32_t maxRandHealth;
-    uint32_t currentRound;
     uint32_t zombieRound;
+    uint32_t currentRound;
 
     string killer;
-    string lastEnemy;
     bool futureRound;
     
 
 public:
-    Game() {
-        zombieRound = 0;
-        currentRound = 0;
-        futureRound = true;
-    }
+    Game():zombieRound(0), currentRound(0), futureRound(true) {}
+
     void getMode(int argc, char * argv[]);
 
     void readHeader();
@@ -61,11 +53,13 @@ public:
 
     void playerAttack();
 
-    uint32_t getMedian();
+    uint32_t getMedian() const;
 
     void updateMedian(uint32_t roundsAlive);
 
     void printStats();
 
     void test01();
+
+    void cleanHeap();
 };

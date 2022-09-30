@@ -32,7 +32,7 @@ public:
     // TODO: When you implement this function, uncomment the parameter names.
     template<typename InputIterator>
     SortedPQ(InputIterator start, InputIterator end, COMP_FUNCTOR comp = COMP_FUNCTOR()) :
-        BaseClass{ comp }, data { start, end} {
+        BaseClass{ comp }, data { start, end } {
             updatePriorities();
     } // SortedPQ
 
@@ -46,7 +46,7 @@ public:
     // Description: Add a new element to the PQ.
     // Runtime: O(n)
     virtual void push(const TYPE &val) {
-        auto index = std::lower_bound(data.begin(), data.end(), val);
+        auto index = std::lower_bound(data.begin(), data.end(), val, this->compare);
         data.insert(index, val);
     } // push()
 
