@@ -1,4 +1,4 @@
-// Project identifier: 0E04A31E0D60C01986ACB20081C9D8722A1899B6
+// Project identifier: 9504853406CBAC39EE89AA3AD238AA12CA198043
 
 #ifndef BINARYPQ_H
 #define BINARYPQ_H
@@ -8,8 +8,6 @@
 #include <iostream>
 #include "Eecs281PQ.h"
 using std::size_t;
-using std::cout;
-using std::endl;
 
 // A specialized version of the priority queue ADT implemented as a binary
 // heap.

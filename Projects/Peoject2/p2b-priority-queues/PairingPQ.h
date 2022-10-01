@@ -1,4 +1,4 @@
-// Project identifier: 0E04A31E0D60C01986ACB20081C9D8722A1899B6
+// Project identifier: 9504853406CBAC39EE89AA3AD238AA12CA198043
 
 #ifndef PAIRINGPQ_H
 #define PAIRINGPQ_H
@@ -18,8 +18,6 @@ public:
     // Each node within the pairing heap
     class Node {
         public:
-            // TODO: After you add add one extra pointer (see below), be sure
-            //       to initialize it here.
             explicit Node(const TYPE &val)
                 : elt{ val }, child{ nullptr }, sibling{ nullptr }, parent{ nullptr }
             {}
@@ -70,18 +68,14 @@ public:
     // Description: Copy constructor.
     // Runtime: O(n)
     PairingPQ(const PairingPQ &other) :
-        BaseClass{ other.compare }, root{nullptr}, numNodes{other.numNodes} {
+        BaseClass{ other.compare }, root{nullptr}, numNodes{0} {
         std::deque<Node*> dq;
         dq.push_back(other.root);
         while (!dq.empty()) {
             Node* current = dq.back();
             dq.pop_back();
-            if (current->child != nullptr) {
-                dq.push_back(current->child);
-            }
-            if (current->sibling != nullptr) {
-                dq.push_back(current->sibling);
-            }
+            if (current->child != nullptr) dq.push_back(current->child);
+            if (current->sibling != nullptr) dq.push_back(current->sibling);
             push(current->elt);
         }
     } // PairingPQ()
@@ -102,18 +96,17 @@ public:
     // Description: Destructor
     // Runtime: O(n)
     ~PairingPQ() {
-        std::deque<Node*> dq;
-        dq.push_back(root);
-        while (!dq.empty()) {
-            Node* current = dq.back();
-            dq.pop_back();
-            if (current->child != nullptr) {
-                dq.push_back(current->child);
+        if (numNodes != 0) {
+            std::deque<Node*> dq;
+            dq.push_back(root);
+            while (!dq.empty()) {
+                Node* current = dq.front();
+                dq.pop_front();
+                if (current->child != nullptr) dq.push_back(current->child);
+                if (current->sibling != nullptr) dq.push_back(current->sibling);
+                delete current;
+                current = nullptr;
             }
-            if (current->sibling != nullptr) {
-                dq.push_back(current->sibling);
-            }
-            delete current;
         }
     } // ~PairingPQ()
 
@@ -134,18 +127,13 @@ public:
         while (!dq.empty()) {
             Node* current = dq.back();
             dq.pop_back();
-            if (current->child != nullptr) {
-                dq.push_back(current->child);
-            }
-            if (current->sibling != nullptr) {
-                dq.push_back(current->sibling);
-            }
+            if (current->child != nullptr) dq.push_back(current->child);
+            if (current->sibling != nullptr) dq.push_back(current->sibling);
             current->parent = nullptr;
             current->sibling = nullptr;
             current->child = nullptr;
 
-            meld(current, root);
-            if (root->parent != nullptr) root = current;
+            root = meld(current, root);
         }
     } // updatePriorities()
 
@@ -168,7 +156,34 @@ public:
     //       exceptions in this project.
     // Runtime: Amortized O(log(n))
     virtual void pop() {
-        
+        std::deque<Node*> dq;
+        Node* start = root->child;
+        delete root;
+        root = nullptr;
+        while (start != nullptr) {
+            dq.push_back(start);
+            start = start->sibling;
+        }
+
+        while (dq.size() > 1) {
+            Node* temp1 = dq.front();
+            dq.pop_front();
+            Node* temp2 = dq.front();
+            dq.pop_front();
+            temp1->parent = nullptr;
+            temp1->sibling = nullptr;
+            temp2->parent = nullptr;
+            temp2->sibling = nullptr;
+            meld(temp1, temp2);
+
+            temp1->parent == nullptr? dq.push_back(temp1) : dq.push_back(temp2);
+        }
+        if (dq.size() == 1) {
+            Node* temp = dq.back();
+            dq.pop_back();
+            root = temp;
+        }
+        --numNodes;
     } // pop()
 
 
@@ -207,19 +222,20 @@ public:
     void updateElt(Node* node, const TYPE &new_value) {
         node->elt = new_value;
         Node* parent = node->parent;
-        Node* begin = parent->child;
-        if (begin == node) {
-            parent->child = node->sibling;
-        } else {
-            while (begin->sibling != node) begin = begin->sibling;
-            begin->sibling = node->sibling;
-        }
-        
-        node->parent = nullptr;
-        node->sibling = nullptr;
+        if (parent && this->compare(parent->elt, node->elt)) {
+            Node* begin = parent->child;
+            if (begin == node) {
+                parent->child = node->sibling;
+            } else {
+                while (begin->sibling != node) begin = begin->sibling;
+                begin->sibling = node->sibling;
+            }
+            
+            node->parent = nullptr;
+            node->sibling = nullptr;
 
-        meld(node, root);
-        if (root->parent != nullptr) root = node;
+            root = meld(node, root);
+        }
     } // updateElt()
 
 
@@ -232,40 +248,26 @@ public:
     // Runtime: O(1)
     Node* addNode(const TYPE &val) {
         Node* temp = new Node(val);
-        
-        if (numNodes == 0) {
-            root = temp;
-        } else {
-             meld(temp, root);
-            if (root->parent != nullptr) root = temp;
-        }
-       
+        root = numNodes == 0? temp : meld(temp, root);
         ++numNodes;
         return temp;
     } // addNode()
 
 
 private:
-    // TODO: Add any additional member variables or member functions you
-    //       require here.
-    // TODO: We recommend creating a 'meld' function (see the Pairing Heap
-    //       papers).
-    void meld(Node* n1, Node* n2) {
+    Node* meld(Node* n1, Node* n2) {
         if (this->compare(n1->elt, n2->elt)) {
             n1->sibling = n2->child;
             n2->child = n1;
             n1->parent = n2;
-        } else {
-            n2->sibling = n1->child;
-            n1->child = n2;
-            n2->parent = n1;
+            return n2;
         }
+        n2->sibling = n1->child;
+        n1->child = n2;
+        n2->parent = n1;
+        return n1;
     }
 
-    // NOTE: For member variables, you are only allowed to add a "root
-    //       pointer" and a "count" of the number of nodes. Anything else
-    //       (such as a deque) should be declared inside of member functions
-    //       as needed.
     Node *root;
     std::size_t numNodes;
 };

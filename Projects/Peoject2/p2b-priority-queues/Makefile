@@ -25,7 +25,7 @@ UNIQNAME    = jyshao
 
 # Change the right hand side of the identifier to match the project identifier
 # given in the project or lab specification.
-IDENTIFIER  = 0E04A31E0D60C01986ACB20081C9D8722A1899B6
+IDENTIFIER  = 9504853406CBAC39EE89AA3AD238AA12CA198043
 
 # Change 'executable' to match the command name given in the project spec.
 EXECUTABLE  = testPQ

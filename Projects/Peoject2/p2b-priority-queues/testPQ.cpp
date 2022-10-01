@@ -1,4 +1,4 @@
-// Project identifier: 0E04A31E0D60C01986ACB20081C9D8722A1899B6
+// Project identifier: 9504853406CBAC39EE89AA3AD238AA12CA198043
 
 /*
  * Compile this test against your .h files to make sure they compile. We
@@ -185,10 +185,9 @@ void testPairing() {
 
         // Range-based constructor
         PairingPQ<int> pairing1 { vec.cbegin(), vec.cend() };
-
+        
         // Copy constructor
         PairingPQ<int> pairing2 { pairing1 };
-
         // Copy-assignment operator
         PairingPQ<int> pairing3 {};
         pairing3 = pairing2;
@@ -210,6 +209,10 @@ void testPairing() {
         std::cout << "Basic tests done." << std::endl;
 
         // TODO: Add more code to test addNode, updateElt, etc.
+        pairing1.updateElt(pairing1.addNode(2), 8);
+        assert(pq1.top() == 8);
+        assert(pq1.size() == 4);
+
 
         // That { above creates a scope, and our pairing heaps will fall out of
         //   scope at the matching } below.
@@ -233,6 +236,7 @@ void testPriorityQueue() {
 //   interface of testPriorityQueue.
 template <>
 void testPriorityQueue<PairingPQ>() {
+    
     testPrimitiveOperations<PairingPQ>();
     testHiddenData<PairingPQ>();
     testUpdatePriorities<PairingPQ>();
