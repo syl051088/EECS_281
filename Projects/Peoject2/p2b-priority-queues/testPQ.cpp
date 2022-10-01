@@ -104,10 +104,8 @@ void testHiddenData() {
     };
 
     struct HiddenDataComp {
-        bool operator()(HiddenData const&, HiddenData const&) const {
-            // TODO: Finish this comparator; when you do, give the parameters
-            //   names in the line above
-            return false;
+        bool operator()(HiddenData const& h1, HiddenData const& h2) const {
+            return h1.data > h2.data;
         }
     };
 
@@ -115,6 +113,23 @@ void testHiddenData() {
 
     // TODO: Add code here to actually test with the HiddenData type.
     // Consider writing this code in the style of testPrimitiveOperations above.
+    PQ<HiddenData, HiddenDataComp> pq {};
+    Eecs281PQ<HiddenData, HiddenDataComp>& eecsPQ = pq;
+
+    eecsPQ.push(HiddenData{30});
+    eecsPQ.push(HiddenData{20});
+    assert(eecsPQ.size() == 2);
+    assert(eecsPQ.top().data == 20);
+
+    eecsPQ.pop();
+    assert(eecsPQ.size() == 1);
+    assert(eecsPQ.top().data == 30);
+    assert(not eecsPQ.empty());
+
+    eecsPQ.pop();
+    assert(eecsPQ.size() == 0);
+    assert(eecsPQ.empty());
+
 
     std::cout << "testHiddenData succeeded!" << std::endl;
 }
@@ -128,6 +143,7 @@ void testUpdatePriorities() {
         5,
     };
 
+    std::cout << "Testing update priorityies..." << std::endl;
     PQ<int const*, IntPtrComp> pq {};
     Eecs281PQ<int const*, IntPtrComp>& eecsPQ = pq;
 
@@ -147,6 +163,9 @@ void testUpdatePriorities() {
     assert(eecsPQ.top() == &datum);
 
     // TODO: Add more testing here as you see fit.
+    
+
+    std::cout << "testUpdatePriorities succeeded!" << std::endl;
 }
 
 

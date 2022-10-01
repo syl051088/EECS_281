@@ -5,7 +5,11 @@
 
 
 #include <algorithm>
+#include <iostream>
 #include "Eecs281PQ.h"
+using std::size_t;
+using std::cout;
+using std::endl;
 
 // A specialized version of the priority queue ADT implemented as a binary
 // heap.
@@ -28,12 +32,8 @@ public:
     // Runtime: O(n) where n is number of elements in range.
     template<typename InputIterator>
     BinaryPQ(InputIterator start, InputIterator end, COMP_FUNCTOR comp = COMP_FUNCTOR()) :
-        BaseClass{ comp } {
-        // TODO: Implement this function
-
-        // These lines are present only so that this provided file compiles.
-        (void)start; // TODO: Delete this line
-        (void)end;   // TODO: Delete this line
+        BaseClass{ comp }, data {start, end} {
+            updatePriorities();
     } // BinaryPQ
 
 
@@ -48,17 +48,17 @@ public:
     //              invariant.
     // Runtime: O(n)
     virtual void updatePriorities() {
-        // TODO: Implement this function.
+        for (size_t i = data.size(); i > 0; --i) {
+            fixDown(i);
+        }
     } // updatePriorities()
 
 
     // Description: Add a new element to the PQ.
     // Runtime: O(log(n))
     virtual void push(const TYPE &val) {
-        // TODO: Implement this function.
-
-        // This line is present only so that this provided file compiles.
-        (void)val; // TODO: Delete this line
+        data.push_back(val);
+        fixUp(data.size());
     } // push()
 
 
@@ -70,7 +70,9 @@ public:
     //       this project.
     // Runtime: O(log(n))
     virtual void pop() {
-        // TODO: Implement this function.
+        data[0] = data.back();
+        data.pop_back();
+        fixDown(1);
     } // pop()
 
 
@@ -80,29 +82,21 @@ public:
     //              that might make it no longer be the most extreme element.
     // Runtime: O(1)
     virtual const TYPE &top() const {
-        // TODO: Implement this function.
-
-        // These lines are present only so that this provided file compiles.
-        static TYPE temp; // TODO: Delete this line
-        return temp;      // TODO: Delete or change this line
+        return data[0];
     } // top()
 
 
     // Description: Get the number of elements in the PQ.
     // Runtime: O(1)
     virtual std::size_t size() const {
-        // TODO: Implement this function. Might be very simple,
-        // depending on your implementation.
-        return 0; // TODO: Delete or change this line
+        return data.size();
     } // size()
 
 
     // Description: Return true if the PQ is empty.
     // Runtime: O(1)
     virtual bool empty() const {
-        // TODO: Implement this function. Might be very simple,
-        // depending on your implementation.
-        return true; // TODO: Delete or change this line
+        return data.empty();
     } // empty()
 
 
@@ -115,6 +109,32 @@ private:
 
     // TODO: Add any additional member functions you require here. For
     //       instance, you might add fixUp() and fixDown().
+    virtual void fixUp(size_t k) {
+        while (k > 1 && this->compare(getElement(k / 2), getElement(k))) {
+            std::swap(getElement(k), getElement(k / 2));
+
+            k = k / 2;
+        }
+    }
+
+    virtual void fixDown(size_t k) {
+        while (2 * k <= data.size()) {
+            size_t j = k * 2;
+            if (j < data.size() && this->compare(getElement(j), getElement(j + 1))) ++j;
+            if (!this->compare(getElement(k), getElement(j))) break;
+            std::swap(getElement(k), getElement(j));
+            k = j;
+        }
+    }
+
+    // Translate 1-based indexing into a 0-based vector
+    TYPE &getElement(std::size_t i) {
+      return data[i - 1];
+    }  // getElement()
+
+    const TYPE &getElement(std::size_t i) const {
+      return data[i - 1];
+    }  // getElement()
 }; // BinaryPQ
 
 
