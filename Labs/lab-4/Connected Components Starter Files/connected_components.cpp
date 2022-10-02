@@ -39,21 +39,23 @@ using std::vector;
 class Graph {
     uint32_t V;
     uint32_t E;
-    vector<uint32_t> parentVec;
     // TODO: add any additional member variables, as needed
-
+    vector<uint32_t> parentVec;
+    vector<uint32_t> rankVec;
 
 public:
     // Graph constructor that initializes the graph and its member variables
     Graph(uint32_t v, uint32_t e) : V{v}, E{e} {
         parentVec.resize(V);
+        rankVec.resize(V, 0);
+        
         // TODO: initialize member variables that you added above
         iota(parentVec.begin(), parentVec.end(), 0);
 
         for (uint32_t i = 0; i < E; ++i) {
             uint32_t src, dest;
             cin >> src >> dest;
-            union_set(find_set(src), find_set(dest));
+            union_set(src, dest);
         }
     }  // Graph()
 
@@ -67,13 +69,24 @@ public:
 
 
     void union_set(uint32_t a, uint32_t b) {
-        parentVec[b] = parentVec[a];
+        uint32_t rootA = find_set(a);
+        uint32_t rootB = find_set(b);
+
+        if (rankVec[rootA] > rankVec[rootB]) {
+            parentVec[rootB] = rootA;
+        } else if (rankVec[rootA] < rankVec[rootB]){
+            parentVec[rootA] = rootB;
+            
+        }  else {
+            parentVec[rootA] = rootB;
+            ++rankVec[rootB];
+        }
     }  // union_set()
 
 
     uint32_t count_components() {
         uint32_t count = 0;
-        for (uint32_t i = 0; i < parentVec.size(); ++i) {
+        for (uint32_t i = 0; i < V; ++i) {
             if (parentVec[i] == i) ++count;
         }
         return count;
@@ -91,6 +104,6 @@ int main() {
 
     Graph g(vertex_count, edge_count);
 
-    cout << g.count_components() << endl;
+    cout << g.count_components() << '\n';
     return 0;
 }  // main()
