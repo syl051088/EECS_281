@@ -161,6 +161,7 @@ void testUpdatePriorities() {
     eecsPQ.updatePriorities();
     assert(*eecsPQ.top() == 10);
     assert(eecsPQ.top() == &datum);
+    
 
     // TODO: Add more testing here as you see fit.
     
