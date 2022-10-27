@@ -1,7 +1,7 @@
 /* 
- * sort012.cpp 
+ * two_pair_sums.cpp 
  * Univeristy of Michigan, Ann Arbor
- * EECS 281 Lab 5 Written.
+ * EECS 281 Lab 6 Written.
  * SUBMIT ONLY THIS FILE TO GRADESCOPE.
  */
 
@@ -30,25 +30,21 @@
 #include <utility>
 #include <vector>
 
-#include "sort012.h"
+#include "two_pair_sums.h"
 
 using namespace std;
 
-void sort012(vector<int>& nums) {
-  size_t start = 0;
-  size_t end = nums.size() - 1;
-  size_t current = 0;
-
-  while (!nums.empty() && current <= end) {
-    if (nums[current] > 1) {
-      swap(nums[current], nums[end]);
-      if (--end >= nums.size()) break;
-    } else if (nums[current] < 1) {
-      swap(nums[current], nums[start]);
-      ++start;
-      ++current;
-    }
-    if (nums[current] == 1) {
-      ++current;
+void two_pair_sums(const vector<int>& nums, ostream& os) {
+  unordered_map<int, vector<pair<int, int>>> m;
+  for (size_t i = 0; i < nums.size(); ++i) {
+    for (size_t j = i + 1; j < nums.size(); ++j) {
+      m[nums[i]+nums[j]].push_back(make_pair(nums[i], nums[j])); 
     }
   }
+  for (auto & p : m) {
+    if (p.second.size() == 2) {
+      os << "(" << p.second[0].first << ", " << p.second[0].second << ") " 
+      << "and (" << p.second[1].first << ", " << p.second[1].second << ")" << endl;
+     }
+  }
+}
