@@ -81,9 +81,7 @@ void SQL::create() {
         cout << name << ' ';
     }
     m.emplace(tableName, Table(tableName, typeV, nameV));
-
     cout << "created" << '\n';
-
 }
 
 void SQL::remove() {
@@ -96,6 +94,42 @@ void SQL::remove() {
     }
     m.erase(it);
     cout << "Table " << tableName << " deleted\n";
+}
+
+void SQL::insert() {
+    string tableName, junk;
+    cin >> junk >> tableName;
+    if (m.find(tableName) == m.end()) {
+        cout << "Error during INSERT: " << tableName << " does not name a table in the database\n";
+        return;
+    }
+    auto &table = m[tableName];
+    size_t N;
+    cin >> N >> junk;
+
+    size_t row = table.getNRow();
+    table.expend(N);
+    row += N;
+    
+    for (size_t i = 0; i < N; ++i) {
+        table.insert();
+    }
+}
+
+void SQL::print() {
+
+}
+
+void SQL::deleteRow() {
+
+}
+
+void SQL::join() {
+
+}
+
+void SQL::generate() {
+
 }
 
 int main(int argc, char * argv[]) {
@@ -122,18 +156,23 @@ int main(int argc, char * argv[]) {
             break;
 
         case 'I':
+            sql.insert();
             break;
 
         case 'P':
+            sql.print();
             break;
         
         case 'D':
+            sql.deleteRow();
             break;
         
         case 'J':
+            sql.join();
             break;
 
         case 'G':
+            sql.generate();
             break;
         
         case '#':{
@@ -143,7 +182,7 @@ int main(int argc, char * argv[]) {
         }
 
         default:
-            cerr << "Invalid command" << endl;
+            cout << "Error: unrecognized command\n";
             break;
         }
     } while (cmd != "QUIT");

@@ -10,12 +10,17 @@ using namespace std;
 
 class SQL {
 private:
-    map<string, Table> m;
+    unordered_map<string, Table> m;
     bool qMode = false;
 public:
     void getMode(int argc, char *argv[]);
     void create();
     void remove();
+    void insert();
+    void print();
+    void deleteRow();
+    void join();
+    void generate();
 
 private:
     void printHelp(char *argv[]) {
