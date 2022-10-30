@@ -11,8 +11,12 @@ using namespace std;
 
 class Table {
 private:
-    string name;
-    vector<TableEntry> v;
+    string tableName;
+    vector<EntryType> entryType;
+    vector<string> entryName;
 public:
+    Table(string n, vector<EntryType> v, vector<string> m): tableName{n}, entryType{v}, entryName{m}{
+
+    }
 
 };

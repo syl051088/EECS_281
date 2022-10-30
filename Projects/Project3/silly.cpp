@@ -40,40 +40,62 @@ void SQL::getMode(int argc, char * argv[]) {
 void SQL::create() {
     string tableName;
     cin >> tableName;
-    if (m.find(tableName) == m.end()) {
+    if (m.find(tableName) != m.end()) {
         cout << "Error during CREATE: Cannot create already existing table " << tableName << '\n';
         getline(cin, tableName);
         return;
     }
-    int N;
+    size_t N;
     cin >> N;
-    vector<TableEntry> entries;
+    vector<EntryType> typeV;
+    typeV.reserve(N);
     string type;
-    for (int i = 0; i < N; ++i) {
+    for (size_t i = 0; i < N; ++i) {
         cin >> type;
         switch (type[0]) {
         case 's':
-            entries.emplace_back(EntryType::String);
+            typeV.emplace_back(EntryType::String);
             break;
         
         case 'd':
-            entries.emplace_back(EntryType::Double);
+            typeV.emplace_back(EntryType::Double);
             break;
 
         case 'i':
-            entries.emplace_back(EntryType::Int);
+            typeV.emplace_back(EntryType::Int);
             break;
 
         case 'b':
-            entries.emplace_back(EntryType::Bool);
+            typeV.emplace_back(EntryType::Bool);
             break;
         }
     }
 
+    cout << "New table " << tableName << " with column(s) ";
+    string name;
+    vector<string> nameV;
+    nameV.reserve(N);
+    for (size_t i = 0; i < N; ++i) {
+        cin >> name;
+        nameV.push_back(name);
+        cout << name << ' ';
+    }
+    m.emplace(tableName, Table(tableName, typeV, nameV));
+
+    cout << "created" << '\n';
+
 }
 
 void SQL::remove() {
-
+    string tableName;
+    cin >> tableName;
+    auto it = m.find(tableName);
+    if (it == m.end()) {
+        cout << "Error during REMOVE: " << tableName << " does not name a table in the database\n";
+        return;
+    }
+    m.erase(it);
+    cout << "Table " << tableName << " deleted\n";
 }
 
 int main(int argc, char * argv[]) {
