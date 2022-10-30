@@ -12,19 +12,18 @@ using namespace std;
 class Table {
 private:
     string tableName;
-    vector<EntryType> entryType;
-    vector<string> entryName;
-    vector<vector<TableEntry>> entries;
+    vector<EntryType> colType;
+    vector<string> colName;
+    vector<vector<TableEntry>> data;
     size_t row = 0;
     size_t col = 0;
 public:
-    Table(string n, vector<EntryType> v, vector<string> m): tableName{n}, entryType{v}, entryName{m}{
-
-    }
+    Table(){}
+    Table(string n, vector<EntryType> v, vector<string> m);
 
     void expend(size_t N) {
-        entries.reserve(entries.size() + N);
-    };
+        data.reserve(data.size() + N);
+    }
 
     size_t getNCol() {
         return col;
@@ -35,5 +34,8 @@ public:
     }
 
     void insert();
+    void printAll(vector<size_t> &v, bool quiet);
+    void printCondition();
+    int findCol(string colName);
 
 };

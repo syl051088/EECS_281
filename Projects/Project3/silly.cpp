@@ -56,15 +56,12 @@ void SQL::create() {
         case 's':
             typeV.emplace_back(EntryType::String);
             break;
-        
         case 'd':
             typeV.emplace_back(EntryType::Double);
             break;
-
         case 'i':
             typeV.emplace_back(EntryType::Int);
             break;
-
         case 'b':
             typeV.emplace_back(EntryType::Bool);
             break;
@@ -98,26 +95,55 @@ void SQL::remove() {
 
 void SQL::insert() {
     string tableName, junk;
-    cin >> junk >> tableName;
+    size_t N;
+    cin >> junk >> tableName >> N >> junk;
     if (m.find(tableName) == m.end()) {
         cout << "Error during INSERT: " << tableName << " does not name a table in the database\n";
+        getline(cin, junk);
+        for (size_t i = 0; i < N; ++i) {
+            getline(cin, junk);
+        }
+        return;
+    }
+    auto &table = m[tableName];
+    
+    size_t row = table.getNRow();
+    table.expend(N);
+    for (size_t i = 0; i < N; ++i) {
+        table.insert();
+    }
+    cout << "Added " << N << " rows to " << tableName << " from position " << row << " to " << row + N - 1 << '\n';
+}
+
+void SQL::print() {
+    string tableName, junk;
+    cin >> junk >> tableName;
+    if (m.find(tableName) == m.end()) {
+        cout << "Error during PRINT: " << tableName << " does not name a table in the database\n";
+        getline(cin, tableName);
         return;
     }
     auto &table = m[tableName];
     size_t N;
-    cin >> N >> junk;
+    cin >> N;
+    vector<size_t> colVec;
 
-    size_t row = table.getNRow();
-    table.expend(N);
-    row += N;
-    
     for (size_t i = 0; i < N; ++i) {
-        table.insert();
+        cin >> junk;
+        int index = table.findCol(junk);
+        if (index == -1) {
+            cout << "Error during PRINT: " << junk << " does not column a table in "<< tableName << '\n';
+            getline(cin, tableName);
+            return;
+        }
+        cout << junk << ' ';
+        colVec.push_back(static_cast<size_t>(index));
     }
-}
+    cout << '\n';
 
-void SQL::print() {
-
+    cin >> junk;
+    junk == "WHERE" ? table.printCondition() : table.printAll(colVec, qMode);
+    
 }
 
 void SQL::deleteRow() {
@@ -147,34 +173,26 @@ int main(int argc, char * argv[]) {
         case 'C':
             sql.create();
             break;
-        
         case 'R':
             sql.remove();
             break;
-        
         case 'Q':
             break;
-
         case 'I':
             sql.insert();
             break;
-
         case 'P':
             sql.print();
             break;
-        
         case 'D':
             sql.deleteRow();
             break;
-        
         case 'J':
             sql.join();
             break;
-
         case 'G':
             sql.generate();
             break;
-        
         case '#':{
             string junk;
             getline(cin, junk);
