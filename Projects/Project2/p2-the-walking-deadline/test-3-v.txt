@@ -1,0 +1,31 @@
+# A larger test with 4000 random zombies
+quiver-capacity: 50
+random-seed: 12
+max-rand-distance: 600
+max-rand-speed: 1
+max-rand-health: 5
+---
+round: 1
+random-zombies: 12
+named-zombies: 3
+MarySueC44oleman distance: 2 speed: 3 health: 6
+LeeBolli11nger distance: 100 speed: 200 health: 1
+MarkSch552lissel distance: 150 speed: 1 health: 15
+---
+round: 2
+random-zombies: 6
+named-zombies: 4
+MarySueColeman distance: 2 speed: 3 health: 6
+LeeBolli33nger distance: 100 speed: 200 health: 100
+markSchlis22sel distance: 150 speed: 300 health: 15
+MarkSchliss33el distance: 150 speed: 300 health: 15
+---
+round: 3
+random-zombies: 2
+named-zom3bies: 2
+markSchlis3sel dist1ance: 150 speed: 300 heal2th: 15
+MarkSchliss11el distance: 150 spe4ed: 300 hea3lth: 15
+---
+round: 4
+random-zombies: 20
+named-zombies: 0
