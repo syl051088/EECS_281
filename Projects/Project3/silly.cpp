@@ -142,12 +142,28 @@ void SQL::print() {
     cout << '\n';
 
     cin >> junk;
-    junk == "WHERE" ? table.printCondition() : table.printAll(colVec, qMode);
+    junk == "WHERE" ? table.printWhere() : table.printAll(colVec, qMode);
     
 }
 
 void SQL::deleteRow() {
+    string tableName, junk;
+    cin >> junk >> tableName;
+    if (m.find(tableName) == m.end()) {
+        cout << "Error during DELETE: " << tableName << " does not name a table in the database\n";
+        getline(cin, tableName);
+        return;
+    }
 
+    cin >> junk >> junk;
+    auto &table = m[tableName];
+    int index = table.findCol(junk);
+    if (index == -1) {
+        cout << "Error during DELETE: " << junk << " does not column a table in "<< tableName << '\n';
+        getline(cin, tableName);
+        return;
+    }
+    table.deleteWhere();
 }
 
 void SQL::join() {
@@ -160,6 +176,8 @@ void SQL::generate() {
 
 int main(int argc, char * argv[]) {
     ios_base::sync_with_stdio(false);
+    cin >> boolalpha;
+    cout << boolalpha;
     
     SQL sql;
     sql.getMode(argc, argv);

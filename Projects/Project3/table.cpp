@@ -36,9 +36,9 @@ void Table::insert() {
             break;
         }
         case EntryType::Bool: {
-            string val;
+            bool val;
             cin >> val;
-            newData.emplace_back(val == "true");
+            newData.emplace_back(val);
             break;
         }
         }
@@ -47,7 +47,7 @@ void Table::insert() {
     ++row;
 }
 
-void Table::printAll(vector<size_t> &v, bool quiet) {
+void Table::printAll(const vector<size_t> &v, bool quiet) {
     if (!quiet) {
         for (size_t i = 0; i < row; ++i) {
             for (auto index : v) {
@@ -57,7 +57,6 @@ void Table::printAll(vector<size_t> &v, bool quiet) {
         }
     }
     cout << "Printed " << row << " matching rows from " << tableName << '\n';
-    
 }
 
 int Table::findCol(string name) {
@@ -65,6 +64,54 @@ int Table::findCol(string name) {
     return it != colName.end() ? static_cast<int>(it - colName.begin()) : -1;
 }
 
-void Table::printCondition() {
+void Table::printWhere() {
+    string str;
+    char OP;
+    cin >> OP >> str;
+    int index = findCol(str);
+    if (index == -1) {
+        cout << "Error during PRINT: " << str << " does not column a table in "<< tableName << '\n';
+        getline(cin, str);
+        return;
+    }
+}
 
+void Table::deleteWhere() {
+    string str;
+    char OP;
+    cin >> str >> OP;
+    int index = findCol(str);
+    if (index == -1) {
+        cout << "Error during DELETE: " << str << " does not column a table in "<< tableName << '\n';
+        getline(cin, str);
+        return;
+    }
+    uint32_t N;
+    switch (colType[static_cast<size_t>(index)]) {
+    case EntryType::String: {
+            string str;
+            cin >> str;
+            N = deleteWhereHelper(OP, index, TableEntry{str});
+            break;
+        }
+        case EntryType::Double: {
+            double val;
+            cin >> val;
+            N = deleteWhereHelper(OP, index, TableEntry{val});
+            break;
+        }
+        case EntryType::Int: {
+            int val;
+            cin >> val;
+            N = deleteWhereHelper(OP, index, TableEntry{val});
+            break;
+        }
+        case EntryType::Bool: {
+            bool val;
+            cin >> val;
+            N = deleteWhereHelper(OP, index, TableEntry{val});
+            break;
+        }
+    }
+    cout << "Deleted " << N << " rows from " << tableName << '\n';
 }
