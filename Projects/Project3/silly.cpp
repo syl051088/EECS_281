@@ -167,7 +167,43 @@ void SQL::deleteRow() {
 }
 
 void SQL::join() {
+    string tableName1, tableName2, junk;
+    cin >> tableName1 >> junk >> tableName2;
+    if (m.find(tableName1) == m.end()) {
+        cout << "Error during JOIN: " << tableName1 << " does not name a table in the database\n";
+        getline(cin, junk);
+        return;
+    }
 
+    if (m.find(tableName2) == m.end()) {
+        cout << "Error during JOIN: " << tableName2 << " does not name a table in the database\n";
+        getline(cin, junk);
+        return;
+    }
+    string colName1, colName2;
+    cin >> junk >> colName1;
+    auto &table1 = m[tableName1];
+    int index1 = table.findCol(colName1);
+    if (index1 == -1) {
+        cout << "Error during JOIN: " << colName1 << " does not column a table in "<< tableName1 << '\n';
+        getline(cin, junk);
+        return;
+    }
+    cin >> junk >> colName2;
+    auto &table2 = m[tableName2];
+    int index2 = table.findCol(colName2);
+    if (index2 == -1) {
+        cout << "Error during JOIN: " << colName2 << " does not column a table in "<< tableName2 << '\n';
+        getline(cin, junk);
+        return;
+    }
+
+    cin >> junk >> junk;
+    size_t N;
+    cin >> N >> 
+    for (size_t i = 0; i < N; ++i) {
+        
+    }
 }
 
 void SQL::generate() {

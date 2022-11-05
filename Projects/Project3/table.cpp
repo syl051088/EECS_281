@@ -86,7 +86,7 @@ void Table::deleteWhere() {
         getline(cin, str);
         return;
     }
-    uint32_t N;
+    size_t N;
     switch (colType[static_cast<size_t>(index)]) {
     case EntryType::String: {
             string str;

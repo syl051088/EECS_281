@@ -76,7 +76,7 @@ private:
 
     }
 
-    uint32_t deleteWhereHelper(char OP, int index, const TableEntry& condition) {
+    size_t deleteWhereHelper(char OP, int index, const TableEntry& condition) {
         auto it = data.begin();
         switch (OP) {
         case '>':
@@ -89,7 +89,10 @@ private:
             it = remove_if(data.begin(), data.end(), EqualTo(condition, static_cast<size_t>(index)));
             break;
         }
-        return static_cast<uint32_t>(it - data.begin());
+        size_t N = data.size() - static_cast<size_t>(it - data.begin());
+        data.erase(it, data.end());
+        row = data.size();
+        return N;
     }
 };
 
