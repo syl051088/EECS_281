@@ -44,19 +44,29 @@ void Table::insert() {
         }
     }
     data.emplace_back(newData);
+    if (indexType == "hash") {
+        hash[data[row][static_cast<size_t>(genIndex)]].push_back(row);
+    } else if (indexType == "bst") {
+        bst[data[row][static_cast<size_t>(genIndex)]].push_back(row);
+    }
     ++row;
 }
 
 void Table::printAll(const vector<size_t> &v, bool quiet) {
     if (!quiet) {
+        for (size_t i : v) {
+            cout << colName[i] << ' ';
+        }
+        cout << endl;
+
         for (size_t i = 0; i < row; ++i) {
             for (auto index : v) {
                 cout << data[i][index] << ' ';
             }
-            cout << '\n';
+            cout << endl;
         }
     }
-    cout << "Printed " << row << " matching rows from " << tableName << '\n';
+    cout << "Printed " << row << " matching rows from " << tableName << endl;
 }
 
 int Table::findCol(string name) {
@@ -64,34 +74,66 @@ int Table::findCol(string name) {
     return it != colName.end() ? static_cast<int>(it - colName.begin()) : -1;
 }
 
-void Table::printWhere() {
-    string str;
+void Table::printWhere(const vector<size_t> &v, bool quiet) {
+    string colNamee;
     char OP;
-    cin >> OP >> str;
-    int index = findCol(str);
+    cin >> colNamee >> OP;
+    int index = findCol(colNamee);
     if (index == -1) {
-        cout << "Error during PRINT: " << str << " does not column a table in "<< tableName << '\n';
-        getline(cin, str);
+        cout << "Error during PRINT: " << colNamee << " does not name a column in "<< tableName << endl;
+        getline(cin, colNamee);
         return;
     }
-}
-
-void Table::deleteWhere() {
-    string str;
-    char OP;
-    cin >> str >> OP;
-    int index = findCol(str);
-    if (index == -1) {
-        cout << "Error during DELETE: " << str << " does not column a table in "<< tableName << '\n';
-        getline(cin, str);
-        return;
+    if (!quiet) {
+        for (size_t i : v) {
+            cout << colName[i] << ' ';
+        }
+        cout << endl;
     }
     size_t N;
     switch (colType[static_cast<size_t>(index)]) {
+        case EntryType::String: {
+                string str;
+                cin >> str;
+                N = (genIndex == index && indexType == "bst") ? printWhereBst(OP, TableEntry{str}, quiet, v) 
+                    : printWhereNormal(OP, index, TableEntry{str}, quiet, v);
+                break;
+            }
+            case EntryType::Double: {
+                double val;
+                cin >> val;
+                N = (genIndex == index && indexType == "bst") ? printWhereBst(OP, TableEntry{val}, quiet, v) 
+                    : printWhereNormal(OP, index, TableEntry{val}, quiet, v);
+                break;
+            }
+            case EntryType::Int: {
+                int val;
+                cin >> val;
+                N = (genIndex == index && indexType == "bst") ? printWhereBst(OP, TableEntry{val}, quiet, v) 
+                    : printWhereNormal(OP, index, TableEntry{val}, quiet, v);
+                break;
+            }
+            case EntryType::Bool: {
+                bool val;
+                cin >> val;
+                N = (genIndex == index && indexType == "bst") ? printWhereBst(OP, TableEntry{val}, quiet, v) 
+                    : printWhereNormal(OP, index, TableEntry{val}, quiet, v);
+                break;
+            }
+        }
+    cout << "Printed " << N << " matching rows from " << tableName << endl;
+}
+
+void Table::deleteWhere(int index) {
+    char OP;
+    cin >> OP;
+
+    size_t N;
+    switch (colType[static_cast<size_t>(index)]) {
     case EntryType::String: {
-            string str;
-            cin >> str;
-            N = deleteWhereHelper(OP, index, TableEntry{str});
+            string val;
+            cin >> val;
+            N = deleteWhereHelper(OP, index, TableEntry{val});
             break;
         }
         case EntryType::Double: {
@@ -113,5 +155,93 @@ void Table::deleteWhere() {
             break;
         }
     }
-    cout << "Deleted " << N << " rows from " << tableName << '\n';
+    cout << "Deleted " << N << " rows from " << tableName << endl;
+
+    if (indexType == "hash") {
+        hash.clear();
+        for (size_t i = 0; i < row; ++i) {
+            hash[data[i][static_cast<size_t>(genIndex)]].push_back(i);
+        }
+    } else if (indexType == "bst") {
+        bst.clear();
+        for (size_t i = 0; i < row; ++i) {
+            bst[data[i][static_cast<size_t>(genIndex)]].push_back(i);
+        }
+    }
+}
+
+size_t Table::join(const vector<TableEntry>& rowV, size_t i, const vector<printCol>& printV, size_t genIdx, bool quiet) {
+    size_t N = 0;
+    const TableEntry& target = rowV[i];
+    if (indexType == "hash" && genIndex == static_cast<int>(genIdx)) {
+        auto it = hash.find(target);
+        if (it != hash.end()) {
+            N = it->second.size();
+            if (!quiet) {
+                for (auto i : it->second) {
+                    for (auto j : printV) {
+                        if (j.isTable1) {
+                            cout << rowV[j.printIndex] << ' ';
+                        } else {
+                            cout << data[i][j.printIndex] << ' ';
+                        }
+                    }
+                    cout << endl;
+                }
+            }
+        }
+    } else if (indexType == "bst" && genIndex == static_cast<int>(genIdx)) {
+        auto it = bst.find(target);
+        if (it != bst.end()) {
+            N = it->second.size();
+            if (!quiet) {
+                for (auto i : it->second) {
+                    for (auto j : printV) {
+                        if (j.isTable1) {
+                            cout << rowV[j.printIndex] << ' ';
+                        } else {
+                            cout << data[i][j.printIndex] << ' ';
+                        }
+                    }
+                    cout << endl;
+                }
+            }
+        }
+    } else {
+        for (size_t i = 0; i < row; ++i) {
+            if (data[i][genIdx] == target) {
+                ++N;
+                if (!quiet) {
+                    for (auto j : printV) {
+                        if (j.isTable1) {
+                            cout << rowV[j.printIndex] << ' ';
+                        } else {
+                            cout << data[i][j.printIndex] << ' ';
+                        }
+                    }
+                    cout << endl;
+                }
+            }
+        }
+    }
+
+    return N;
+}
+
+void Table::generate(string idxType, size_t idx) {
+    indexType = idxType;
+    genIndex = static_cast<int>(idx);
+    bst.clear();
+    hash.clear();
+    if (indexType == "hash") {
+        for (size_t i = 0; i < row; ++i) {
+            hash[data[i][idx]].push_back(i);
+        }
+    } else {
+        for (size_t i = 0; i < row; ++i) {
+            bst[data[i][idx]].push_back(i);
+        }
+    }
+
+    cout << "Created " << indexType << " index for table " << tableName << " on column " << colName[idx] << endl;
 }

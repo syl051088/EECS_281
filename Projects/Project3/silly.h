@@ -18,7 +18,7 @@ public:
     void remove();
     void insert();
     void print();
-    void deleteRow();
+    void deleteWhere();
     void join();
     void generate();
 

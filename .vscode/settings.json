@@ -6,7 +6,10 @@
         "vector": "cpp",
         "__string": "cpp",
         "iostream": "cpp",
-        "istream": "cpp"
+        "istream": "cpp",
+        "map": "cpp",
+        "__split_buffer": "cpp",
+        "string": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }
