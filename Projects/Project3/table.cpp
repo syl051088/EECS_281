@@ -12,38 +12,37 @@ using namespace std;
 
 Table::Table(string n, vector<EntryType> v, vector<string> m): tableName{n}, colType{v}, colName{m}, col{v.size()}{}
 
-void Table::insert() {
-    vector<TableEntry> newData;
-    newData.reserve(col);
+void Table::insert(size_t index) {
+    auto & currentRow = data[index];
+    currentRow.reserve(col);
     for (size_t i = 0; i < col; ++i) {
         switch (colType[i]){
         case EntryType::String: {
             string str;
             cin >> str;
-            newData.emplace_back(str);
+            currentRow.emplace_back(str);
             break;
         }
         case EntryType::Double: {
             double val;
             cin >> val;
-            newData.emplace_back(val);
+            currentRow.emplace_back(val);
             break;
         }
         case EntryType::Int: {
             int val;
             cin >> val;
-            newData.emplace_back(val);
+            currentRow.emplace_back(val);
             break;
         }
         case EntryType::Bool: {
             bool val;
             cin >> val;
-            newData.emplace_back(val);
+            currentRow.emplace_back(val);
             break;
         }
         }
     }
-    data.emplace_back(newData);
     if (indexType == "hash") {
         hash[data[row][static_cast<size_t>(genIndex)]].push_back(row);
     } else if (indexType == "bst") {
@@ -57,16 +56,16 @@ void Table::printAll(const vector<size_t> &v, bool quiet) {
         for (size_t i : v) {
             cout << colName[i] << ' ';
         }
-        cout << endl;
+        cout << '\n';
 
         for (size_t i = 0; i < row; ++i) {
             for (auto index : v) {
                 cout << data[i][index] << ' ';
             }
-            cout << endl;
+            cout << '\n';
         }
     }
-    cout << "Printed " << row << " matching rows from " << tableName << endl;
+    cout << "Printed " << row << " matching rows from " << tableName << '\n';
 }
 
 int Table::findCol(string name) {
@@ -80,7 +79,7 @@ void Table::printWhere(const vector<size_t> &v, bool quiet) {
     cin >> colNamee >> OP;
     int index = findCol(colNamee);
     if (index == -1) {
-        cout << "Error during PRINT: " << colNamee << " does not name a column in "<< tableName << endl;
+        cout << "Error during PRINT: " << colNamee << " does not name a column in "<< tableName << '\n';
         getline(cin, colNamee);
         return;
     }
@@ -88,7 +87,7 @@ void Table::printWhere(const vector<size_t> &v, bool quiet) {
         for (size_t i : v) {
             cout << colName[i] << ' ';
         }
-        cout << endl;
+        cout << '\n';
     }
     size_t N;
     switch (colType[static_cast<size_t>(index)]) {
@@ -121,7 +120,7 @@ void Table::printWhere(const vector<size_t> &v, bool quiet) {
                 break;
             }
         }
-    cout << "Printed " << N << " matching rows from " << tableName << endl;
+    cout << "Printed " << N << " matching rows from " << tableName << '\n';
 }
 
 void Table::deleteWhere(int index) {
@@ -155,7 +154,7 @@ void Table::deleteWhere(int index) {
             break;
         }
     }
-    cout << "Deleted " << N << " rows from " << tableName << endl;
+    cout << "Deleted " << N << " rows from " << tableName << '\n';
 
     if (indexType == "hash") {
         hash.clear();
@@ -170,56 +169,51 @@ void Table::deleteWhere(int index) {
     }
 }
 
-size_t Table::join(const vector<TableEntry>& rowV, size_t i, const vector<printCol>& printV, size_t genIdx, bool quiet) {
+size_t Table::join(const vector<vector<TableEntry>> & t1Data, size_t index1, const vector<printCol>& printV, size_t index2, bool quiet) {
     size_t N = 0;
-    const TableEntry& target = rowV[i];
-    if (indexType == "hash" && genIndex == static_cast<int>(genIdx)) {
-        auto it = hash.find(target);
-        if (it != hash.end()) {
-            N = it->second.size();
-            if (!quiet) {
-                for (auto i : it->second) {
-                    for (auto j : printV) {
-                        if (j.isTable1) {
-                            cout << rowV[j.printIndex] << ' ';
-                        } else {
-                            cout << data[i][j.printIndex] << ' ';
+    
+    if (indexType == "hash" && genIndex == static_cast<int>(index2)) {
+        for (auto& rowV : t1Data) {
+            const TableEntry& target = rowV[index1];
+            auto it = hash.find(target);
+            if (it != hash.end()) {
+                N += it->second.size();
+                if (!quiet) {
+                    for (auto i : it->second) {
+                        for (auto j : printV) {
+                            if (j.isTable1) {
+                                cout << rowV[j.printIndex] << ' ';
+                            } else {
+                                cout << data[i][j.printIndex] << ' ';
+                            }
                         }
+                        cout << '\n';
                     }
-                    cout << endl;
                 }
-            }
-        }
-    } else if (indexType == "bst" && genIndex == static_cast<int>(genIdx)) {
-        auto it = bst.find(target);
-        if (it != bst.end()) {
-            N = it->second.size();
-            if (!quiet) {
-                for (auto i : it->second) {
-                    for (auto j : printV) {
-                        if (j.isTable1) {
-                            cout << rowV[j.printIndex] << ' ';
-                        } else {
-                            cout << data[i][j.printIndex] << ' ';
-                        }
-                    }
-                    cout << endl;
-                }
-            }
+            } 
         }
     } else {
+        unordered_map<TableEntry, vector<size_t>> temp;
         for (size_t i = 0; i < row; ++i) {
-            if (data[i][genIdx] == target) {
-                ++N;
+            temp[data[i][index2]].push_back(i);
+        }
+
+        for (auto& rowV : t1Data) {
+            const TableEntry& target = rowV[index1];
+            auto it = temp.find(target);
+            if (it != temp.end()) {
+                N += it->second.size();
                 if (!quiet) {
-                    for (auto j : printV) {
-                        if (j.isTable1) {
-                            cout << rowV[j.printIndex] << ' ';
-                        } else {
-                            cout << data[i][j.printIndex] << ' ';
+                    for (auto i : it->second) {
+                        for (auto j : printV) {
+                            if (j.isTable1) {
+                                cout << rowV[j.printIndex] << ' ';
+                            } else {
+                                cout << data[i][j.printIndex] << ' ';
+                            }
                         }
+                        cout << '\n';
                     }
-                    cout << endl;
                 }
             }
         }
@@ -243,5 +237,5 @@ void Table::generate(string idxType, size_t idx) {
         }
     }
 
-    cout << "Created " << indexType << " index for table " << tableName << " on column " << colName[idx] << endl;
+    cout << "Created " << indexType << " index for table " << tableName << " on column " << colName[idx] << '\n';
 }

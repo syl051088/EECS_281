@@ -65,7 +65,7 @@ public:
     Table(string n, vector<EntryType> v, vector<string> m);
 
     void expend(size_t N) {
-        data.reserve(data.size() + N);
+        data.resize(data.size() + N);
     }
 
     size_t getNCol() {
@@ -84,11 +84,11 @@ public:
         return indexType;
     }
 
-    void insert();
+    void insert(size_t index);
     void printAll(const vector<size_t> &v, bool quiet);
     void printWhere(const vector<size_t> &v, bool quiet);
     void deleteWhere(int index);
-    size_t join(const vector<TableEntry>& rowV, size_t i, const vector<printCol>& printV, size_t genIdx, bool quiet);
+    size_t join(const vector<vector<TableEntry>> & t1Data, size_t index1, const vector<printCol>& printV, size_t index2, bool quiet);
     void generate(string idxType, size_t idx);
     int findCol(string colName);
 
@@ -103,7 +103,7 @@ private:
                     for (size_t j : v) {
                         cout << data[i][j] << ' ';
                     }
-                    cout << endl;
+                    cout << '\n';
                 }
             }
         }
@@ -125,7 +125,7 @@ private:
                         for (size_t k : v) {
                             cout << data[j][k] << ' ';
                         }
-                        cout << endl;
+                        cout << '\n';
                     }
                 } 
             }
@@ -140,7 +140,7 @@ private:
                         for (size_t k : v) {
                             cout << data[j][k] << ' ';
                         }
-                        cout << endl;
+                        cout << '\n';
                     }
                 }  
             }
@@ -158,7 +158,7 @@ private:
                     for (size_t j : v) {
                         cout << data[i][j] << ' ';
                     }
-                    cout << endl;
+                    cout << '\n';
                 }
             }
             break;
@@ -188,7 +188,7 @@ private:
                             for (size_t j : v) {
                                 cout << data[i][j] << ' ';
                             }
-                            cout << endl;
+                            cout << '\n';
                         }
                     }  
                 }

@@ -8,6 +8,7 @@
 #include "silly.h"
 #include "TableEntry.h"
 #include "table.h"
+#include "xcode_redirect.hpp"
 
 using namespace std;
 
@@ -31,7 +32,7 @@ void SQL::getMode(int argc, char * argv[]) {
                 qMode = true;
                 break;
             default:
-                cerr << "Error: unrecognized command" << endl;
+                cerr << "Error: unrecognized command" << '\n';
                 exit(1);
         } // switch
     } // while
@@ -41,7 +42,7 @@ void SQL::create() {
     string tableName;
     cin >> tableName;
     if (m.find(tableName) != m.end()) {
-        cout << "Error during CREATE: Cannot create already existing table " << tableName << endl;
+        cout << "Error during CREATE: Cannot create already existing table " << tableName << '\n';
         getline(cin, tableName);
         return;
     }
@@ -78,7 +79,7 @@ void SQL::create() {
         cout << name << ' ';
     }
     m.emplace(tableName, Table(tableName, typeV, nameV));
-    cout << "created" << endl;
+    cout << "created" << '\n';
 }
 
 void SQL::remove() {
@@ -110,9 +111,9 @@ void SQL::insert() {
     size_t row = table.getNRow();
     table.expend(N);
     for (size_t i = 0; i < N; ++i) {
-        table.insert();
+        table.insert(i);
     }
-    cout << "Added " << N << " rows to " << tableName << " from position " << row << " to " << row + N - 1 << endl;
+    cout << "Added " << N << " rows to " << tableName << " from position " << row << " to " << row + N - 1 << '\n';
 }
 
 void SQL::print() {
@@ -132,7 +133,7 @@ void SQL::print() {
         cin >> junk;
         int index = table.findCol(junk);
         if (index == -1) {
-            cout << "Error during PRINT: " << junk << " does not name a column in "<< tableName << endl;
+            cout << "Error during PRINT: " << junk << " does not name a column in "<< tableName << '\n';
             getline(cin, tableName);
             return;
         }
@@ -156,7 +157,7 @@ void SQL::deleteWhere() {
     auto &table = m[tableName];
     int index = table.findCol(junk);
     if (index == -1) {
-        cout << "Error during DELETE: " << junk << " does not name a column in "<< tableName << endl;
+        cout << "Error during DELETE: " << junk << " does not name a column in "<< tableName << '\n';
         getline(cin, tableName);
         return;
     }
@@ -182,7 +183,7 @@ void SQL::join() {
     auto &table1 = m[tableName1];
     int index1 = table1.findCol(colName1);
     if (index1 == -1) {
-        cout << "Error during JOIN: " << colName1 << " does not name a column in "<< tableName1 << endl;
+        cout << "Error during JOIN: " << colName1 << " does not name a column in "<< tableName1 << '\n';
         getline(cin, junk);
         return;
     }
@@ -190,7 +191,7 @@ void SQL::join() {
     auto &table2 = m[tableName2];
     int index2 = table2.findCol(colName2);
     if (index2 == -1) {
-        cout << "Error during JOIN: " << colName2 << " does not name a column in "<< tableName2 << endl;
+        cout << "Error during JOIN: " << colName2 << " does not name a column in "<< tableName2 << '\n';
         getline(cin, junk);
         return;
     }
@@ -206,7 +207,7 @@ void SQL::join() {
         if (fromTable == 1) {
             int index = table1.findCol(colName);
             if (index == -1) {
-                cout << "Error during JOIN: " << colName << " does not name a column in "<< tableName1 << endl;
+                cout << "Error during JOIN: " << colName << " does not name a column in "<< tableName1 << '\n';
                 getline(cin, junk);
                 return;
             }
@@ -215,7 +216,7 @@ void SQL::join() {
         } else {
             int index = table2.findCol(colName);
             if (index == -1) {
-                cout << "Error during JOIN: " << colName << " does not name a column in "<< tableName2 << endl;
+                cout << "Error during JOIN: " << colName << " does not name a column in "<< tableName2 << '\n';
                 getline(cin, junk);
                 return;
             }
@@ -226,15 +227,10 @@ void SQL::join() {
             cout << colName << ' ';
         }
     }
-    cout << endl;
+    cout << '\n';
 
-    size_t numRows = 0;
-    for (auto & rowV : table1.getData()) {
-        for (size_t i = 0; i < rowV.size(); ++i) {
-            numRows += table2.join(rowV, i, colV, static_cast<size_t>(index2), qMode);
-        }
-    }
-    cout << "Printed " << numRows << " rows from joining " << tableName1 << " to " << tableName2 << endl;
+    size_t numRows = table2.join(table1.getData(), static_cast<size_t>(index1), colV, static_cast<size_t>(index2), qMode);
+    cout << "Printed " << numRows << " rows from joining " << tableName1 << " to " << tableName2 << '\n';
 }
 
 void SQL::generate() {
@@ -249,7 +245,7 @@ void SQL::generate() {
     cin >> indexType >> junk >> junk >> colName;
     int index = table.findCol(colName);
     if (index == -1) {
-        cout << "Error during GENERATE: " << colName << " does not name a column in "<< tableName << endl;
+        cout << "Error during GENERATE: " << colName << " does not name a column in "<< tableName << '\n';
         getline(cin, junk);
         return;
     }
@@ -258,6 +254,7 @@ void SQL::generate() {
 
 int main(int argc, char * argv[]) {
     ios_base::sync_with_stdio(false);
+    xcode_redirect(argc,argv);
     cin >> boolalpha;
     cout << boolalpha;
     
