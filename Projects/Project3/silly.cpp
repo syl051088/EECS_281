@@ -46,12 +46,12 @@ void SQL::create() {
         getline(cin, tableName);
         return;
     }
-    size_t N;
+    uint32_t N;
     cin >> N;
     vector<EntryType> typeV;
     typeV.reserve(N);
     string type;
-    for (size_t i = 0; i < N; ++i) {
+    for (uint32_t i = 0; i < N; ++i) {
         cin >> type;
         switch (type[0]) {
         case 's':
@@ -73,7 +73,7 @@ void SQL::create() {
     string name;
     vector<string> nameV;
     nameV.reserve(N);
-    for (size_t i = 0; i < N; ++i) {
+    for (uint32_t i = 0; i < N; ++i) {
         cin >> name;
         nameV.push_back(name);
         cout << name << ' ';
@@ -96,23 +96,20 @@ void SQL::remove() {
 
 void SQL::insert() {
     string tableName, junk;
-    size_t N;
+    uint32_t N;
     cin >> junk >> tableName >> N >> junk;
     if (m.find(tableName) == m.end()) {
         cout << "Error during INSERT: " << tableName << " does not name a table in the database\n";
         getline(cin, junk);
-        for (size_t i = 0; i < N; ++i) {
+        for (uint32_t i = 0; i < N; ++i) {
             getline(cin, junk);
         }
         return;
     }
     auto &table = m[tableName];
     
-    size_t row = table.getNRow();
-    table.expend(N);
-    for (size_t i = 0; i < N; ++i) {
-        table.insert(i);
-    }
+    uint32_t row = table.getNRow();
+    table.insert(N);
     cout << "Added " << N << " rows to " << tableName << " from position " << row << " to " << row + N - 1 << '\n';
 }
 
@@ -125,11 +122,11 @@ void SQL::print() {
         return;
     }
     auto &table = m[tableName];
-    size_t N;
+    uint32_t N;
     cin >> N;
-    vector<size_t> colVec;
+    vector<uint32_t> colVec;
 
-    for (size_t i = 0; i < N; ++i) {
+    for (uint32_t i = 0; i < N; ++i) {
         cin >> junk;
         int index = table.findCol(junk);
         if (index == -1) {
@@ -137,7 +134,7 @@ void SQL::print() {
             getline(cin, tableName);
             return;
         }
-        colVec.push_back(static_cast<size_t>(index));
+        colVec.push_back(static_cast<uint32_t>(index));
     }
 
     cin >> junk;
@@ -195,14 +192,14 @@ void SQL::join() {
         getline(cin, junk);
         return;
     }
-    size_t N;
+    uint32_t N;
     cin >> junk >> junk >> N;
 
     vector<printCol> colV;
     colV.reserve(N);
     string colName;
     int fromTable;
-    for (size_t i = 0; i < N; ++i) {
+    for (uint32_t i = 0; i < N; ++i) {
         cin >> colName >> fromTable;
         if (fromTable == 1) {
             int index = table1.findCol(colName);
@@ -222,14 +219,13 @@ void SQL::join() {
             }
             colV.emplace_back(index, false);
         }
-
         if (!qMode) {
             cout << colName << ' ';
         }
     }
-    cout << '\n';
+    if (!qMode) cout << '\n';
 
-    size_t numRows = table2.join(table1.getData(), static_cast<size_t>(index1), colV, static_cast<size_t>(index2), qMode);
+    uint32_t numRows = table2.join(table1.getData(), static_cast<uint32_t>(index1), colV, static_cast<uint32_t>(index2), qMode);
     cout << "Printed " << numRows << " rows from joining " << tableName1 << " to " << tableName2 << '\n';
 }
 
@@ -249,7 +245,7 @@ void SQL::generate() {
         getline(cin, junk);
         return;
     }
-    table.generate(indexType, static_cast<size_t>(index));
+    table.generate(indexType, static_cast<uint32_t>(index));
 }
 
 int main(int argc, char * argv[]) {

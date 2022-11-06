@@ -9,7 +9,8 @@
         "istream": "cpp",
         "map": "cpp",
         "__split_buffer": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "ostream": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

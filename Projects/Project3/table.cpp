@@ -10,55 +10,64 @@
 
 using namespace std;
 
-Table::Table(string n, vector<EntryType> v, vector<string> m): tableName{n}, colType{v}, colName{m}, col{v.size()}{}
+Table::Table(string n, vector<EntryType> v, vector<string> m): tableName{n}, colType{v}, colName{m}, col{static_cast<uint32_t>(v.size())}{}
 
-void Table::insert(size_t index) {
-    auto & currentRow = data[index];
-    currentRow.reserve(col);
-    for (size_t i = 0; i < col; ++i) {
-        switch (colType[i]){
-        case EntryType::String: {
-            string str;
-            cin >> str;
-            currentRow.emplace_back(str);
-            break;
-        }
-        case EntryType::Double: {
-            double val;
-            cin >> val;
-            currentRow.emplace_back(val);
-            break;
-        }
-        case EntryType::Int: {
-            int val;
-            cin >> val;
-            currentRow.emplace_back(val);
-            break;
-        }
-        case EntryType::Bool: {
-            bool val;
-            cin >> val;
-            currentRow.emplace_back(val);
-            break;
-        }
+void Table::insert(uint32_t N) {
+    data.resize(data.size() + N);
+    for (uint32_t i = row; i < N + row; ++i) {
+        auto & currentRow = data[i];
+        currentRow.reserve(col);
+        for (uint32_t j = 0; j < col; ++j) {
+            switch (colType[j]){
+            case EntryType::String: {
+                string str;
+                cin >> str;
+                currentRow.emplace_back(str);
+                break;
+            }
+            case EntryType::Double: {
+                double val;
+                cin >> val;
+                currentRow.emplace_back(val);
+                break;
+            }
+            case EntryType::Int: {
+                int val;
+                cin >> val;
+                currentRow.emplace_back(val);
+                break;
+            }
+            case EntryType::Bool: {
+                bool val;
+                cin >> val;
+                currentRow.emplace_back(val);
+                break;
+            }
         }
     }
+    }
+    
     if (indexType == "hash") {
-        hash[data[row][static_cast<size_t>(genIndex)]].push_back(row);
+        for (uint32_t i = row; i < N + row; ++i) {
+            hash[data[i][static_cast<uint32_t>(genIndex)]].push_back(i);
+        }
+        
     } else if (indexType == "bst") {
-        bst[data[row][static_cast<size_t>(genIndex)]].push_back(row);
+        for (uint32_t i = row; i < N + row; ++i) {
+            bst[data[i][static_cast<uint32_t>(genIndex)]].push_back(i);
+        }
     }
-    ++row;
+    row += N;
 }
 
-void Table::printAll(const vector<size_t> &v, bool quiet) {
+void Table::printAll(const vector<uint32_t> &v, bool quiet) {
     if (!quiet) {
-        for (size_t i : v) {
+        for (uint32_t i : v) {
             cout << colName[i] << ' ';
         }
         cout << '\n';
 
-        for (size_t i = 0; i < row; ++i) {
+        for (uint32_t i = 0; i < row; ++i) {
             for (auto index : v) {
                 cout << data[i][index] << ' ';
             }
@@ -73,24 +82,26 @@ int Table::findCol(string name) {
     return it != colName.end() ? static_cast<int>(it - colName.begin()) : -1;
 }
 
-void Table::printWhere(const vector<size_t> &v, bool quiet) {
-    string colNamee;
+void Table::printWhere(const vector<uint32_t> &v, bool quiet) {
+    string name;
     char OP;
-    cin >> colNamee >> OP;
-    int index = findCol(colNamee);
+    cin >> name >> OP;
+    int index = findCol(name);
     if (index == -1) {
-        cout << "Error during PRINT: " << colNamee << " does not name a column in "<< tableName << '\n';
-        getline(cin, colNamee);
+        cout << "Error during PRINT: " << name << " does not name a column in "<< tableName << '\n';
+        getline(cin, name);
         return;
     }
+    
     if (!quiet) {
-        for (size_t i : v) {
+        for (uint32_t i : v) {
             cout << colName[i] << ' ';
         }
         cout << '\n';
     }
     size_t N;
-    switch (colType[static_cast<size_t>(index)]) {
+    switch (colType[static_cast<uint32_t>(index)]) {
+        
         case EntryType::String: {
                 string str;
                 cin >> str;
@@ -127,8 +138,8 @@ void Table::deleteWhere(int index) {
     char OP;
     cin >> OP;
 
-    size_t N;
-    switch (colType[static_cast<size_t>(index)]) {
+    uint32_t N;
+    switch (colType[static_cast<uint32_t>(index)]) {
     case EntryType::String: {
             string val;
             cin >> val;
@@ -158,18 +169,18 @@ void Table::deleteWhere(int index) {
 
     if (indexType == "hash") {
         hash.clear();
-        for (size_t i = 0; i < row; ++i) {
-            hash[data[i][static_cast<size_t>(genIndex)]].push_back(i);
+        for (uint32_t i = 0; i < row; ++i) {
+            hash[data[i][static_cast<uint32_t>(genIndex)]].push_back(i);
         }
     } else if (indexType == "bst") {
         bst.clear();
-        for (size_t i = 0; i < row; ++i) {
-            bst[data[i][static_cast<size_t>(genIndex)]].push_back(i);
+        for (uint32_t i = 0; i < row; ++i) {
+            bst[data[i][static_cast<uint32_t>(genIndex)]].push_back(i);
         }
     }
 }
 
-size_t Table::join(const vector<vector<TableEntry>> & t1Data, size_t index1, const vector<printCol>& printV, size_t index2, bool quiet) {
+uint32_t Table::join(const vector<vector<TableEntry>> & t1Data, uint32_t index1, const vector<printCol>& printV, uint32_t index2, bool quiet) {
     size_t N = 0;
     
     if (indexType == "hash" && genIndex == static_cast<int>(index2)) {
@@ -193,8 +204,8 @@ size_t Table::join(const vector<vector<TableEntry>> & t1Data, size_t index1, con
             } 
         }
     } else {
-        unordered_map<TableEntry, vector<size_t>> temp;
-        for (size_t i = 0; i < row; ++i) {
+        unordered_map<TableEntry, vector<uint32_t>> temp;
+        for (uint32_t i = 0; i < row; ++i) {
             temp[data[i][index2]].push_back(i);
         }
 
@@ -219,20 +230,20 @@ size_t Table::join(const vector<vector<TableEntry>> & t1Data, size_t index1, con
         }
     }
 
-    return N;
+    return static_cast<uint32_t>(N);
 }
 
-void Table::generate(string idxType, size_t idx) {
+void Table::generate(string idxType, uint32_t idx) {
     indexType = idxType;
     genIndex = static_cast<int>(idx);
     bst.clear();
     hash.clear();
     if (indexType == "hash") {
-        for (size_t i = 0; i < row; ++i) {
+        for (uint32_t i = 0; i < row; ++i) {
             hash[data[i][idx]].push_back(i);
         }
     } else {
-        for (size_t i = 0; i < row; ++i) {
+        for (uint32_t i = 0; i < row; ++i) {
             bst[data[i][idx]].push_back(i);
         }
     }

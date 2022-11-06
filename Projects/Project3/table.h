@@ -12,9 +12,9 @@ using namespace std;
 
 struct GreaterThan {
     TableEntry val;
-    size_t index;
+    uint32_t index;
 
-    GreaterThan(TableEntry value, size_t colIndex): val{value}, index{colIndex}{}
+    GreaterThan(TableEntry value, uint32_t colIndex): val{value}, index{colIndex}{}
     bool operator()(const vector<TableEntry>  &row) {
         return row[index] > val;
     }
@@ -22,9 +22,9 @@ struct GreaterThan {
 
 struct LessThan {
     TableEntry val;
-    size_t index;
+    uint32_t index;
 
-    LessThan(TableEntry value, size_t colIndex): val{value}, index{colIndex}{}
+    LessThan(TableEntry value, uint32_t colIndex): val{value}, index{colIndex}{}
     bool operator()(const vector<TableEntry> &row) {
         return row[index] < val;
     }
@@ -32,9 +32,10 @@ struct LessThan {
 
 struct EqualTo {
     TableEntry val;
-    size_t index;
+    uint32_t index;
 
-    EqualTo(TableEntry value, size_t colIndex): val{value}, index{colIndex}{}
+    EqualTo(TableEntry value, uint32_t colIndex): val{value}, index{colIndex}{
+    }
 
     bool operator()(const vector<TableEntry> &row) {
         return row[index] == val;
@@ -42,37 +43,33 @@ struct EqualTo {
 };
 
 struct printCol{
-    size_t printIndex;
+    uint32_t printIndex;
     bool isTable1;
 
-    printCol(size_t idx, bool val): printIndex{idx}, isTable1{val} {};
+    printCol(uint32_t idx, bool val): printIndex{idx}, isTable1{val} {};
 };
 
 class Table {
 private:
     string tableName;
-    unordered_map<TableEntry, vector<size_t>> hash;
-    map<TableEntry, vector<size_t>> bst;
+    unordered_map<TableEntry, vector<uint32_t>> hash;
+    map<TableEntry, vector<uint32_t>> bst;
     vector<EntryType> colType;
     vector<string> colName;
     vector<vector<TableEntry>> data;
     string indexType = "NA";
-    size_t row = 0;
-    size_t col = 0;
+    uint32_t row = 0;
+    uint32_t col = 0;
     int genIndex = -1;
 public:
     Table(){}
     Table(string n, vector<EntryType> v, vector<string> m);
 
-    void expend(size_t N) {
-        data.resize(data.size() + N);
-    }
-
-    size_t getNCol() {
+    uint32_t getNCol() {
         return col;
     }
 
-    size_t getNRow() {
+    uint32_t getNRow() {
         return row;
     }
 
@@ -84,23 +81,23 @@ public:
         return indexType;
     }
 
-    void insert(size_t index);
-    void printAll(const vector<size_t> &v, bool quiet);
-    void printWhere(const vector<size_t> &v, bool quiet);
+    void insert(uint32_t index);
+    void printAll(const vector<uint32_t> &v, bool quiet);
+    void printWhere(const vector<uint32_t> &v, bool quiet);
     void deleteWhere(int index);
-    size_t join(const vector<vector<TableEntry>> & t1Data, size_t index1, const vector<printCol>& printV, size_t index2, bool quiet);
-    void generate(string idxType, size_t idx);
-    int findCol(string colName);
+    uint32_t join(const vector<vector<TableEntry>> & t1Data, uint32_t index1, const vector<printCol>& printV, uint32_t index2, bool quiet);
+    void generate(string idxType, uint32_t idx);
+    int findCol(string name);
 
 private:
     template<typename COMP_FUNCTOR>
-    size_t printWhereHelper(bool quiet, const vector<size_t> &v, COMP_FUNCTOR comp) {
-        size_t N = 0;
-        for (size_t i = 0; i < row; ++i) {
+    uint32_t printWhereHelper(bool quiet, const vector<uint32_t> &v, COMP_FUNCTOR comp) {
+        uint32_t N = 0;
+        for (uint32_t i = 0; i < row; ++i) {
             if (comp(data[i])) {
                 ++N;
                 if (!quiet) {
-                    for (size_t j : v) {
+                    for (uint32_t j : v) {
                         cout << data[i][j] << ' ';
                     }
                     cout << '\n';
@@ -110,7 +107,7 @@ private:
 
         return N;
     }
-    size_t printWhereBst(char OP, const TableEntry& condition, bool quiet, const vector<size_t> &v) {
+    size_t printWhereBst(char OP, const TableEntry& condition, bool quiet, const vector<uint32_t> &v) {
         size_t N = 0;
         auto itBegin = bst.begin();
         auto it = bst.begin();
@@ -121,8 +118,8 @@ private:
             for (auto i = it; i != itEnd; ++i) {
                 N += i->second.size();
                 if (!quiet) {
-                    for (size_t j : i->second) {
-                        for (size_t k : v) {
+                    for (uint32_t j : i->second) {
+                        for (uint32_t k : v) {
                             cout << data[j][k] << ' ';
                         }
                         cout << '\n';
@@ -136,8 +133,8 @@ private:
             for (auto i = itBegin; i != it; ++i) {
                 N += i->second.size();
                 if (!quiet) {
-                    for (size_t j : i->second) {
-                        for (size_t k : v) {
+                    for (uint32_t j : i->second) {
+                        for (uint32_t k : v) {
                             cout << data[j][k] << ' ';
                         }
                         cout << '\n';
@@ -154,8 +151,8 @@ private:
             }
             N = it->second.size();
             if (!quiet) {
-                for (size_t i : it->second) {
-                    for (size_t j : v) {
+                for (uint32_t i : it->second) {
+                    for (uint32_t j : v) {
                         cout << data[i][j] << ' ';
                     }
                     cout << '\n';
@@ -167,15 +164,15 @@ private:
         return N;
     }
 
-    size_t printWhereNormal(char OP, int index, const TableEntry& condition, bool quiet, const vector<size_t> &v) {
+    size_t printWhereNormal(char OP, int index, const TableEntry& condition, bool quiet, const vector<uint32_t> &v) {
         size_t N = 0;
         switch (OP) {
         case '>': {
-            N = printWhereHelper(quiet, v, GreaterThan(condition, static_cast<size_t>(index)));
+            N = printWhereHelper(quiet, v, GreaterThan(condition, static_cast<uint32_t>(index)));
             break;
         }
         case '<': {
-            N = printWhereHelper(quiet, v, LessThan(condition, static_cast<size_t>(index)));
+            N = printWhereHelper(quiet, v, LessThan(condition, static_cast<uint32_t>(index)));
             break;
         }
         case '=': {
@@ -184,8 +181,8 @@ private:
                 if (it != hash.end()) {
                     N = it->second.size();
                     if (!quiet) {
-                        for (size_t i : it->second) {
-                            for (size_t j : v) {
+                        for (uint32_t i : it->second) {
+                            for (uint32_t j : v) {
                                 cout << data[i][j] << ' ';
                             }
                             cout << '\n';
@@ -193,7 +190,7 @@ private:
                     }  
                 }
             } else {
-                N = printWhereHelper(quiet, v, EqualTo(condition, static_cast<size_t>(index)));
+                N = printWhereHelper(quiet, v, EqualTo(condition, static_cast<uint32_t>(index)));
             }
             break;
         } 
@@ -202,22 +199,24 @@ private:
         return N;
     }
 
-    size_t deleteWhereHelper(char OP, int index, const TableEntry& condition) {
+    uint32_t deleteWhereHelper(char OP, int index, const TableEntry& condition) {
         auto it = data.begin();
         switch (OP) {
         case '>':
-            it = remove_if(data.begin(), data.end(), GreaterThan(condition, static_cast<size_t>(index)));
+            it = remove_if(data.begin(), data.end(), GreaterThan(condition, static_cast<uint32_t>(index)));
             break;
         case '<':
-            it = remove_if(data.begin(), data.end(), LessThan(condition, static_cast<size_t>(index)));
+            it = remove_if(data.begin(), data.end(), LessThan(condition, static_cast<uint32_t>(index)));
             break;
-        case '=': 
-            it = remove_if(data.begin(), data.end(), EqualTo(condition, static_cast<size_t>(index)));
+        case '=':
+            it = remove_if(data.begin(), data.end(), EqualTo(condition, static_cast<uint32_t>(index)));
             break;
         }
-        size_t N = data.size() - static_cast<size_t>(it - data.begin());
+        
+        uint32_t N = static_cast<uint32_t>(data.end() - it);
         data.erase(it, data.end());
-        row = data.size();
+        row -= N;
+
         return N;
     }
 };
