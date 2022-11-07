@@ -1,0 +1,37 @@
+CREATE test 2 int double in doub
+INSERT INTO test 5 ROWS
+-10 -3.14
+-5 7.8
+-18 8.0
+9 -2.3
+1 -0.8
+PRINT FROM test 2 in doub WHERE in < 0
+GENERATE FOR test bst INDEX ON in
+GENERATE FOR test hash INDEX ON doub
+DELETE FROM test WHERE in > 0
+PRINT FROM test 2 in doub WHERE in > 0
+PRINT FROM test 2 in doub WHERE in > -12
+PRINT FROM test 1 in WHERE in = 1
+PRINT FROM test1 1 in WHERE in = 1
+PRINT FROM test 2 in doub ALL
+REMOVE test
+CREATE test1 2 int double in doub
+INSERT INTO test 5 ROWS
+-10 -3.14
+-5 7.8
+-18 8.0
+9 -2.3
+1 -0.8
+sdfsdf
+PRINT FROM test1 2 in doub WHERE in < 0
+GENERATE FOR test1 bst INDEX ON in
+GENERATE FOR test1 hash INDEX ON doub
+DELETE FROM test1 WHERE in > 0
+PRINT FROM test1 2 in doub WHERE in > 0
+PRINT FROM test1 2 in doub WHERE in > -12
+PRINT FROM test1 1 in WHERE in = 1
+PRINT FROM test1 1 in WHERE in = 1
+PRINT FROM test1 2 in doub ALL
+REMOVE test
+JOIN test1 AND test WHERE in = in AND PRINT 3 in 1 doub 2 in 2
+QUIT

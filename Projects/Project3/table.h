@@ -65,20 +65,12 @@ public:
     Table(){}
     Table(string n, vector<EntryType> v, vector<string> m);
 
-    uint32_t getNCol() {
-        return col;
-    }
-
     uint32_t getNRow() {
         return row;
     }
 
     vector<vector<TableEntry>> & getData() {
         return data;
-    }
-
-    string getIdxType() {
-        return indexType;
     }
 
     void insert(uint32_t index);

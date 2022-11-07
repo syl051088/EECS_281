@@ -1,0 +1,35 @@
+CREATE table 2 string int key val
+INSERT INTO table 15 ROWS
+we 45
+wy 464
+wdf 456
+rtcvbf 94
+fhgjkdf 285
+c 1
+t 4
+u 5
+dof 3
+zp 32
+[] 32
+zxc 75
+q 0
+xc -5
+oo 0
+#sdfsdf 
+#dsfs
+PRINT FROM table 2 key val WHERE val < 50
+PRINT FROM table 2 key val WHERE val > 50
+PRINT FROM table 2 key val WHERE val = 50
+GENERATE FOR table bst INDEX ON val
+PRINT FROM table 2 key val WHERE val < 20
+PRINT FROM table 2 key val WHERE val > 20
+GENERATE FOR table bst INDEX ON key
+PRINT FROM table 2 key val WHERE key < k
+PRINT FROM table 2 key val WHERE key > p
+GENERATE FOR table hash INDEX ON val
+PRINT FROM table 2 key val WHERE val = 15
+PRINT FROM table 2 key val WHERE val = 320
+PRINT FROM table 2 key val WHERE val = 32
+JOIN table AND table WHERE val = val AND PRINT 4 val 1 key 1 val 2 key 2
+REMOVE table
+QUIT

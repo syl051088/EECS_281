@@ -56,9 +56,13 @@ vector<string> replace_words(const vector<string>& prefixes,
   return v;
 }
 
-// int main() {
-//   vector<string> prefixes = {"cat", "bat", "rat"};
-//   vector<string> sentence = {"the", "cattle", "was", "rattled", "by", "the", "battery"};
-//   replace_words(prefixes, sentence);
-//   return 0;
-// }
+int main() {
+  string str;
+  cin >> str;
+  cout << str << endl;
+  getline(cin, str);
+  cin >> str;
+  cout << str << endl;
+
+  return 0;
+}

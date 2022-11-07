@@ -1,0 +1,34 @@
+CREATE test 2 int string val name
+INSERT INTO test 10 ROWS
+65 asdf
+21 wrap
+1 asd
+2 print
+89 sdfsdf
+79 ss
+357 sdfsdf
+22 as3
+32 asd
+44 ss
+PRINT FROM test 2 val name ALL
+GENERATE FOR test hash INDEX ON name
+PRINT FROM test 2 val name WHERE name = print
+DELETE FROM test WHERE name = delete
+PRINT FROM test 2 val name ALL
+PRINT FROM test 2 val name WHERE name = print
+INSERT INTO test 4 ROWS
+9 suit
+10 print
+11 boar
+12 print
+PRINT FROM test 2 val name ALL
+PRINT FROM test 2 val name WHERE name = print
+REMOVE test
+CREATE test 4 string double int bool str dub num val
+INSERT INTO test 1 ROWS
+one 1.23 456 true
+two  7.89 1011 false
+PRINT FROM test 4 str dub num val ALL
+PRINT FROM test 4 str dub num val ALL
+REMOVE test
+QUIT

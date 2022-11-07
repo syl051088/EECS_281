@@ -1,0 +1,45 @@
+CREATE test 2 string int name age
+GENERATE FOR test bst INDEX ON age
+INSERT INTO test 5 ROWS
+Andrew 20
+Tom 12
+Ian 67
+Mike 5
+Andrew 90
+DELETE FROM test WHERE age < 4
+CREATE skeet 2 int bool dogs cool
+INSERT INTO skeet 3 ROWS
+20 true
+19 false
+5 true
+CREATE umich 3 string double string student gpa year
+GENERATE FOR umich hash INDEX ON year
+GENERATE FOR umich bst INDEX ON gpa
+INSERT INTO umich 4 ROWS
+Andrew 3.1 junior
+Nick 3.9 junior
+Lindsey 3.5 sophomore
+Anya 0.01 freshman
+PRINT FROM umich 1 gpa ALL
+GENERATE FOR umich hash INDEX ON student
+PRINT FROM umich 2 gpa year WHERE student = Andrew
+DELETE FROM umich WHERE gpa < 3.1
+CREATE copy 3 string double string student gpa year
+INSERT INTO umich 4 ROWS
+Andrew 3.1 junior
+Nick 3.9 junior
+Lindsey 3.5 sophomore
+Anya 0.01 freshman
+JOIN umich AND copy WHERE student = student AND PRINT 3 student 1 gpa 2 year 2
+REMOVE umich
+REMOVE copy
+GENERATE FOR skeet hash INDEX ON dogs
+JOIN test AND skeet WHERE age = dogs AND PRINT 4 cool 2 age 1 name 1 dogs 2
+PRINT FROM test 1 age WHERE age < 67
+DELETE FROM test WHERE age < 67
+PRINT FROM test 1 age WHERE age < 67
+REMOVE test
+PRINT FROM skeet 2 cool dogs WHERE dogs < 12
+PRINT FROM skeet 1 dogs ALL
+REMOVE skeet
+QUIT

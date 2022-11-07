@@ -1,0 +1,33 @@
+CREATE test 1 string name
+INSERT INTO test 8 ROWS
+isdf
+wage
+each
+t
+Y
+ugly
+sdf
+zxcv
+PRINT FROM test 1 name ALL
+GENERATE FOR test bst INDEX ON name
+PRINT FROM test 1 name WHERE name > a
+DELETE FROM test WHERE name < d
+PRINT FROM test 1 name ALL
+CREATE table1 2 string double name number
+INSERT INTO table 8 ROWS
+GENERATE FOR table1 bst INDEX ON number
+PRINT FROM table1 2 name number ALL
+DELETE FROM table1 WHERE number > 100.0
+PRINT FROM table3 2 name number ALL
+REMOVE table
+fgdfg
+PRINT FROM test 1 name WHERE name > a
+INSERT INTO test 4 ROWS
+suit
+bomb
+boar
+wasp
+PRINT FROM test 1 name ALL
+PRINT FROM test 1 name WHERE name > a
+REMOVE test
+QUIT

@@ -101,9 +101,6 @@ void SQL::insert() {
     if (m.find(tableName) == m.end()) {
         cout << "Error during INSERT: " << tableName << " does not name a table in the database\n";
         getline(cin, junk);
-        for (uint32_t i = 0; i < N; ++i) {
-            getline(cin, junk);
-        }
         return;
     }
     auto &table = m[tableName];
@@ -291,10 +288,12 @@ int main(int argc, char * argv[]) {
             getline(cin, junk);
             break;
         }
-
-        default:
+        default: {
             cout << "Error: unrecognized command\n";
+            string junk;
+            getline(cin, junk);
             break;
+        } 
         }
     } while (cmd != "QUIT");
 
