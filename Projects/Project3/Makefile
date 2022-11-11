@@ -301,7 +301,9 @@ help:
 # % g++ -std=c++1z -MM *.cpp
 #
 # ADD YOUR OWN DEPENDENCIES HERE
-
+TableEntry.o: TableEntry.cpp TableEntry.h
+silly.o: silly.cpp silly.h table.h TableEntry.h xcode_redirect.hpp
+table.o: table.cpp TableEntry.h table.h
 ######################
 # TODO (end) #
 ######################

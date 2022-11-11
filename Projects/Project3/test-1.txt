@@ -12,12 +12,29 @@ victorious Sith true
 DELETE FROM 281class WHERE person = Darden
 GENERATE FOR 281class hash INDEX ON emotion
 PRINT FROM 281clsass 2 person emotion WHERE Y/N = true
-CREATE pets 3 string bool bool Name likes_cats? likes_dogs?
+CREATE pets 3 string bool bool Name bb? aa?
 INSERT INTO pets 2 ROWS
 Sith true true
 Paoletti true false
-JOIN pets AND 281class WHERE Name = person AND PRINT 3 Name 1 emotion 2 likes_dogs? 1
-JOIN pets AND 281class WHERE Name = emotion AND PRINT 3 Name 1 emotion 2 likes_dogs? 1
+CREATE kkk 3 string int bool s i b
+GENERATE FOR kkk bst INDEX ON i
+INSERT INTO kkk 7 ROWS
+a 6 false
+f 2 false
+b 10 true
+c 2 true
+d 12 false
+e 3 false
+g 5 true
+PRINT FROM kkk 2 s i WHERE i < 7
+DELETE FROM kkk WHERE i > 5
+PRINT FROM kkk 2 s i WHERE i < 7
+JOIN pets AND 281class33 WHERE Name = person AND PRINT 3 Name 1 emotion 2 aa? 1
+JOIN pets AND 281class WHERE Name33 = person AND PRINT 3 Name 1 emotion 2 aa? 1
+JOIN pets AND 281class WHERE Name = person33 AND PRINT 3 Name 1 emotion 2 aa? 1
+JOIN pets AND 281class WHERE Name = person AND PRINT 3 Name33 1 emotion 2 aa? 1
+JOIN pets AND 281class WHERE Name = person AND PRINT 3 Name 1 emotion 2 aa? 1
+JOIN pets AND 281class WHERE Name = emotion AND PRINT 3 Name 1 emotion 2 aa? 1
 REMOVE pets
 REMOVE 281class
 QUIT

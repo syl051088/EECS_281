@@ -1,14 +1,14 @@
-CREATE test 6 int bool int double string double lol rofl lmao hi drop top
+CREATE test 6 int bool int double string double lol wer cc hi dd top
 INSERT INTO test 7 ROWS 
 5 false 10 15.0 hi 22.0
 6 true 9 15.7 great 28.7
 7 false 30 15.9 life 27.9
-8 false 40 16.8 why 32.8
 9 false 7 25.2 do 21.3
 10 true 50 35.4 I  32.4
+8 false 40 16.8 why 32.8
 11 true 30 25.2 feel 12.9
-DELETE FROM test WHERE rofl = true
-PRINT FROM test 3 lmao hi drop WHERE lol > 7
+DELETE FROM test WHERE wer = true
+PRINT FROM test 3 cc hi dd WHERE lol > 7
 INSERT INTO test 2 ROWS
 12 false 14 27.4 so 2.4
 13 true 15 5.2 bored 2.9
@@ -16,9 +16,10 @@ INSERT INTO test 1 ROWS
 14 true 16 37.4 akls 7.4
 INSERT INTO test 1 ROWS
 1442 false 18 47.44 dask 8.4
-JOIN test AND test WHERE lol = lmao AND PRINT 3 lmao 1 drop 2 top 1
+JOIN test AND test WHERE lol = cc AND PRINT 3 cc 1 dd 2 top 1
 GENERATE FOR test hash INDEX ON lmaso
-CREATE test2 3 bool string int tf? is_cold? num
+CREATE test2 3 bool string int BB? AA? num
+GENERATE FOR test2 bst INDEX ON num
 INSERT INTO test2 7 ROWS
 false Bob 2
 true Jodhn 2
@@ -27,11 +28,12 @@ true Marsy 33
 false Peter 5
 false Paul 62
 true John 1
-GENERATE FOR test2 bst INDEX ON num
-PRINT FROM test2 1 num WHERE is_cold? > John
-DELETE FROM test2 WHERE tf? = false
-PRINT FROM test2 1 num WHERE tf? > true
-DELETE FROM test2 WHERE tf? = false
+PRINT FROM test2 1 num WHERE AA? > John
+DELETE FROM test233 WHERE BB? = false
+DELETE FROM test233 WHERE BB33? = false
+DELETE FROM test2 WHERE BB? = false
+PRINT FROM test2 2 num BB? WHERE num < 5
+DELETE FROM test2 WHERE BB? = false
 INSERT INTO test2 3 ROWS
 true Jake 2
 true Alex 4
@@ -40,11 +42,11 @@ INSERT INTO test2 3 ROWS
 false Mary 4
 false Mary 9
 true John 4
-PRINT FROM test2 2 tf? is_cold? WHERE is_cold? < Mary
-DELETE FROM test2 WHERE tf? = false
-PRINT FROM test2 2 tf? is_cold? WHERE num > 3
+PRINT FROM test2 2 BB? AA? WHERE AA? < Mary
+DELETE FROM test2 WHERE BB? = false
+PRINT FROM test2 2 BB? AA? WHERE num > 3
 GENERATE FOR test2 hash INDEX ON num
-PRINT FROM test2 2 tf? is_cold? WHERE num > 3
+PRINT FROM test2 2 BB? AA? WHERE num > 3
 REMOVE test2
-PRINT FROM test 1 lmao WHERE top > 21.0
+PRINT FROM test 1 cc WHERE top > 21.0
 QUIT

@@ -1,4 +1,5 @@
 CREATE test 1 string name
+CREATE test 1 string name
 INSERT INTO test 8 ROWS
 isdf
 wage

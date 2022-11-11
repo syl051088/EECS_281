@@ -156,7 +156,6 @@ private:
         // in the constructor. However, you will only pass the AG test cases ending in _C.
         // To pass the rest, start with at most 20 buckets and implement rehash_and_grow().
         double loadFactor = static_cast<double>(num_elements) / static_cast<double>(buckets.size());
-        // double loadFactor = static_cast<double>(num_elements / buckets.size());
         if (loadFactor > 0.5) {
             std::vector<Bucket> newBuck;
             newBuck.resize(2 * buckets.size());

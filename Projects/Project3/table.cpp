@@ -10,7 +10,7 @@
 
 using namespace std;
 
-Table::Table(string n, vector<EntryType> v, vector<string> m): tableName{n}, colType{v}, colName{m}, col{static_cast<uint32_t>(v.size())}{}
+Table::Table(vector<EntryType> v, vector<string> m, string n): colType{v}, colName{m}, tableName{n}, col{static_cast<uint32_t>(v.size())}{}
 
 void Table::insert(uint32_t N) {
     data.resize(data.size() + N);

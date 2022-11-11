@@ -51,19 +51,19 @@ struct printCol{
 
 class Table {
 private:
-    string tableName;
     unordered_map<TableEntry, vector<uint32_t>> hash;
     map<TableEntry, vector<uint32_t>> bst;
+    vector<vector<TableEntry>> data;
     vector<EntryType> colType;
     vector<string> colName;
-    vector<vector<TableEntry>> data;
     string indexType = "NA";
+    string tableName;
     uint32_t row = 0;
     uint32_t col = 0;
     int genIndex = -1;
 public:
     Table(){}
-    Table(string n, vector<EntryType> v, vector<string> m);
+    Table(vector<EntryType> v, vector<string> m, string n);
 
     uint32_t getNRow() {
         return row;

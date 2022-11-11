@@ -78,7 +78,7 @@ void SQL::create() {
         nameV.push_back(name);
         cout << name << ' ';
     }
-    m.emplace(tableName, Table(tableName, typeV, nameV));
+    m.emplace(tableName, Table(typeV, nameV, tableName));
     cout << "created" << '\n';
 }
 
