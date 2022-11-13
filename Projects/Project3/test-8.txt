@@ -1,0 +1,33 @@
+CREATE 281class 3 string string bool emotion person Y/N
+INSERT INTO 281class 8 ROWS
+happy Darden true
+stressed students true
+stressed ww true
+happy Darden true
+stressed students false
+busy office_hours true
+happy aa true
+victorious aa true
+GENERATE FOR 281class hash INDEX ON emotion
+PRINT FROM 281class 2 person emotion WHERE emotion < busy
+PRINT FROM 281class 2 person emotion WHERE emotion > busy
+PRINT FROM 281class 2 person emotion ALL
+PRINT FROM 281class 2 person emotion WHERE emotion = busy
+GENERATE FOR 281class bst INDEX ON emotion
+PRINT FROM 281class 2 person emotion WHERE emotion < busy
+PRINT FROM 281class 2 person emotion WHERE emotion > busy
+PRINT FROM 281class 2 person emotion ALL
+PRINT FROM 281class 2 person emotion WHERE emotion = busy
+DELETE FROM 281class WHERE emotion = stressed
+PRINT FROM 281class 2 person emotion WHERE emotion = busy
+PRINT FROM 281class 2 person emotion WHERE emotion < busy
+PRINT FROM 281class 2 person emotion WHERE emotion > busy
+PRINT FROM 281class 2 person emotion ALL
+CREATE pets 3 string bool bool Name likes_cats? likes_dogs?
+INSERT INTO pets 2 ROWS
+aa true true
+ww true false
+JOIN pets AND 281class WHERE Name = person AND PRINT 3 Name 1 emotion 2 likes_dogs? 1
+REMOVE 281class
+REMOVE pets
+QUIT

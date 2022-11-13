@@ -22,10 +22,10 @@ INSERT INTO kkk 7 ROWS
 a 6 false
 f 2 false
 b 10 true
+g 5 true
 c 2 true
 d 12 false
 e 3 false
-g 5 true
 PRINT FROM kkk 2 s i WHERE i < 7
 DELETE FROM kkk WHERE i > 5
 PRINT FROM kkk 2 s i WHERE i < 7

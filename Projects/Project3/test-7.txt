@@ -14,7 +14,6 @@ PRINT FROM test 2 val name ALL
 GENERATE FOR test hash INDEX ON name
 GENERATE FOR test hash INDEX ON name1
 GENERATE FOR test3 bst INDEX ON name
-GENERATE FOR test bst INDEX ON name
 PRINT FROM test 2 val name WHERE name = print
 DELETE FROM test WHERE name = delete
 PRINT FROM test 2 val name ALL
@@ -28,7 +27,7 @@ PRINT FROM test 2 val name ALL
 PRINT FROM test 2 val name WHERE name = print
 REMOVE test
 CREATE test 4 string double int bool str dub num val
-INSERT INTO test 2 ROWS
+INSERT INTO test 1 ROWS
 one 1.23 456 true
 two  7.89 1011 false
 PRINT FROM test 4 str dub num val ALL
