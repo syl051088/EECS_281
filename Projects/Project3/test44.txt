@@ -1,0 +1,34 @@
+CREATE anime 4 string int bool int name episodes watched? rating
+#yay
+GENERATE FOR anime bst INDEX on episodes
+INSERT INTO anime 4 ROWS
+haikyuu 10 false 0
+onepiece 1000 true 9
+hxh 60 true 8
+AoT 70 false 0
+GENERATE FOR anime bst INDEX on watched?
+JOIN anime AND kdramas WHERE name = Name AND PRINT 2 name 1 Name 2
+CREATE kdramas 2 string bool Name like?
+INSERT INTO anime 2 ROWS
+neverland 20 true 6
+bluelock 5 true 8
+#uh
+PRINT FROM anime 2 name watched?
+PRINT FROM anime 4 name episodes watched? rating WHERE watched? = false
+DELETE FROM anime WHERE rating = 0
+GENERATE FOR anime hash INDEX on episodes
+PRINT FROM anime 2 name watched?
+INSERT INTO kdramas 3 ROWS
+# whee
+#yuh
+nevertheless false
+classoflies true
+itaewonclass true
+JOIN kdramas and anime WHERE like? = watched? AND PRINT 2 Name 1 name 2
+JOIN kdramas and anime WHERE like? = watched? AND PRINT 0
+GENERATE FOR kdramas hash INDEX ON watched?
+PRINT FROM kdramas 1 watched? WHERE name = classoflies
+PRINT FROM kdramas 1 name WHERE watched? = true
+REMOVE kdramas
+REMOVE anime
+QUIT
