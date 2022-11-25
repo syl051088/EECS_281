@@ -10,7 +10,8 @@
         "map": "cpp",
         "__split_buffer": "cpp",
         "string": "cpp",
-        "ostream": "cpp"
+        "ostream": "cpp",
+        "limits": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }
