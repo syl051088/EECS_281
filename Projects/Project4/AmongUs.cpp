@@ -71,7 +71,6 @@ void AmongUs::readFile() {
 }
 
 void AmongUs::mst() {
-    vector<PrimInfo> primV;
     primV.resize(roomN);
     primV[0].distance = 0;
     double runningTotal = 0;
@@ -88,7 +87,7 @@ void AmongUs::mst() {
         primV[roomIdx].isVisitied = true;
         runningTotal += primV[roomIdx].distance;
         for (uint32_t j = 0; j < roomN; ++j) {
-            if (!primV[j].isVisitied) {
+            if (!primV[j].isVisitied && !((roomV[roomIdx].type == 'o' && roomV[j].type == 'l') || (roomV[j].type == 'o' && roomV[roomIdx].type == 'l'))) {
                 double newDis = getDistance(roomV[roomIdx], roomV[j]);
                 if (newDis < primV[j].distance) {
                     primV[j].distance = newDis;
@@ -107,7 +106,49 @@ void AmongUs::mst() {
 }
 
 void AmongUs::fastTsp() {
+    primV.clear();
+    primV.resize(roomN);
+    path.reserve(roomN);
+    uint32_t curIdx = 0;
+    double runningTotal = 0;
+    // nearest neighbor
+    // for (uint32_t i = 0; i < roomN; ++i) {
+    //     double minDis = numeric_limits<double>::infinity();
+    //     uint32_t tempIdx = 0;
+    //     for (uint32_t j = 0; j < roomN; ++j) {
+    //         if (!primV[j].isVisitied) {
+    //             double newDis = getDistance(roomV[curIdx], roomV[j]);
+    //             if (newDis < minDis) {
+    //                 minDis = newDis;
+    //                 tempIdx = j;
+    //             }
+    //         }
+    //     }
+    //     curIdx = tempIdx;
+    //     path.push_back(curIdx);
+    //     primV[curIdx].isVisitied = true;
+    //     runningTotal += minDis;
+    // }
+    // runningTotal += getDistance(roomV[curIdx], roomV[0]);
 
+    path.push_back(0);
+    for (uint32_t i = 1; i < roomN; ++i) {
+        double minDis = numeric_limits<double>::infinity();
+        uint32_t tempIdx = 0;
+        for (uint32_t j = 0; j < roomN; ++j) {
+            if (!primV[j].isVisitied) {
+                double newDis = getDistance(roomV[curIdx], roomV[j]);
+            }
+        }
+    }
+
+    if (mode == 'f') {
+        cout << runningTotal << '\n';
+        for (uint32_t i = 0; i < roomN; ++i) {
+            cout << path[i] << ' ';
+        }
+        cout << '\n';
+    }
 }
 
 void AmongUs::optTsp() {
@@ -124,6 +165,8 @@ int main(int argc, char* argv[]) {
     au.readFile();
     if (au.mode == 'm') {
         au.mst();
+    } else if (au.mode == 'f') {
+        au.fastTsp();
     } else {
 
     }

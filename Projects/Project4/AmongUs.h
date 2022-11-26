@@ -23,9 +23,10 @@ struct RoomInfo {
 
 class AmongUs {
 private:
+    vector<PrimInfo> primV;
     vector<RoomInfo> roomV;
+    vector<uint32_t> path;
     uint32_t roomN;
-    
     
 public:
     char mode;
@@ -42,9 +43,6 @@ private:
     }
 
     double getDistance(const RoomInfo& r1,const RoomInfo& r2) {
-        if ((r1.type == 'o' && r2.type == 'l') || (r2.type == 'o' && r1.type == 'l')) {
-            return numeric_limits<double>::infinity();
-        }
         double xdiff = static_cast<double>(r1.x - r2.x);
         double ydiff = static_cast<double>(r1.y - r2.y);
         return sqrt(xdiff * xdiff + ydiff * ydiff);
