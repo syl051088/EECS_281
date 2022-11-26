@@ -42,9 +42,9 @@ private:
         cout << "Usage: " << argv[0] << " -m, –mode {MST|FASTTSP|OPTTSP}\n";
     }
 
-    double getDistance(const RoomInfo& r1,const RoomInfo& r2) {
-        double xdiff = static_cast<double>(r1.x - r2.x);
-        double ydiff = static_cast<double>(r1.y - r2.y);
+    double getDistance(uint32_t idx1, uint32_t idx2) {
+        double xdiff = static_cast<double>(roomV[idx1].x - roomV[idx2].x);
+        double ydiff = static_cast<double>(roomV[idx1].y - roomV[idx2].y);
         return sqrt(xdiff * xdiff + ydiff * ydiff);
     }
 };

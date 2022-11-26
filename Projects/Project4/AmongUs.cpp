@@ -88,7 +88,7 @@ void AmongUs::mst() {
         runningTotal += primV[roomIdx].distance;
         for (uint32_t j = 0; j < roomN; ++j) {
             if (!primV[j].isVisitied && !((roomV[roomIdx].type == 'o' && roomV[j].type == 'l') || (roomV[j].type == 'o' && roomV[roomIdx].type == 'l'))) {
-                double newDis = getDistance(roomV[roomIdx], roomV[j]);
+                double newDis = getDistance(roomIdx, j);
                 if (newDis < primV[j].distance) {
                     primV[j].distance = newDis;
                     primV[j].parent = roomIdx;
@@ -117,7 +117,7 @@ void AmongUs::fastTsp() {
     //     uint32_t tempIdx = 0;
     //     for (uint32_t j = 0; j < roomN; ++j) {
     //         if (!primV[j].isVisitied) {
-    //             double newDis = getDistance(roomV[curIdx], roomV[j]);
+    //             double newDis = getDistance(curIdx, j);
     //             if (newDis < minDis) {
     //                 minDis = newDis;
     //                 tempIdx = j;
@@ -129,17 +129,57 @@ void AmongUs::fastTsp() {
     //     primV[curIdx].isVisitied = true;
     //     runningTotal += minDis;
     // }
-    // runningTotal += getDistance(roomV[curIdx], roomV[0]);
+    // runningTotal += getDistance(curIdx, 0);
 
     path.push_back(0);
-    for (uint32_t i = 1; i < roomN; ++i) {
+    primV[0].isVisitied = true;
+    path.push_back(1);
+    primV[1].isVisitied = true;
+    path.push_back(2);
+    primV[2].isVisitied = true;
+    runningTotal += getDistance(0, 1) + getDistance(1, 2) + getDistance(0, 2);
+    // double minDis0 = numeric_limits<double>::infinity();
+    // for (uint32_t i = 1; i < roomN; ++i) {
+    //     double newDis = getDistance(0, i);
+    //     if (newDis < minDis0) {
+    //         minDis0 = newDis;
+    //         curIdx = i;
+    //     }
+    // }
+    // path.push_back(curIdx);
+    // runningTotal += 2 * minDis0;
+    // primV[curIdx].isVisitied = true;
+    for (uint32_t i = 3; i < roomN; ++i) {
         double minDis = numeric_limits<double>::infinity();
-        uint32_t tempIdx = 0;
-        for (uint32_t j = 0; j < roomN; ++j) {
-            if (!primV[j].isVisitied) {
-                double newDis = getDistance(roomV[curIdx], roomV[j]);
+        uint32_t tempIdx = i;
+        // for (uint32_t j = 0; j < roomN; ++j) {
+        //     if (!primV[j].isVisitied) {
+        //         double newDis = getDistance(curIdx, j);
+        //         if (newDis < minDis) {
+        //             minDis = newDis;
+        //             tempIdx = j;
+        //         }
+        //     }
+        // }
+        curIdx = tempIdx;
+        tempIdx = 0;
+        minDis = numeric_limits<double>::infinity();
+        for (uint32_t j = 0; j < static_cast<uint32_t>(path.size() - 1); ++j) {
+            double newDis = getDistance(path[j], curIdx) + getDistance(curIdx, path[j + 1]) - getDistance(path[j], path[j + 1]);
+            if (newDis < minDis) {
+                minDis = newDis;
+                tempIdx = j;
             }
         }
+        double lastDis = getDistance(0, curIdx) + getDistance(curIdx, path.back()) - getDistance(0, path.back());
+        if (lastDis < minDis) {
+            minDis = lastDis;
+            path.push_back(curIdx);
+        } else {
+            path.insert(path.begin() + tempIdx + 1, curIdx);
+        }
+        primV[curIdx].isVisitied = true;
+        runningTotal += minDis;
     }
 
     if (mode == 'f') {
@@ -168,7 +208,7 @@ int main(int argc, char* argv[]) {
     } else if (au.mode == 'f') {
         au.fastTsp();
     } else {
-
+        au.fastTsp();
     }
 
     return 0;
