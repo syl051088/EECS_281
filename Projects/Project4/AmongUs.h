@@ -26,6 +26,7 @@ private:
     vector<PrimInfo> primV;
     vector<RoomInfo> roomV;
     vector<uint32_t> path;
+    double bestSoFar;
     uint32_t roomN;
     
 public:
@@ -47,4 +48,29 @@ private:
         double ydiff = static_cast<double>(roomV[idx1].y - roomV[idx2].y);
         return sqrt(xdiff * xdiff + ydiff * ydiff);
     }
+
+    void promising() {
+
+    }
+
+    void solution() {
+
+    }
+
+    void genPerms(size_t permLength) {
+        if (permLength == path.size()) {
+            if ()
+            return;
+        }  // if ..complete path
+
+        if (!promising(path, permLength)) {
+            return;
+        }  // if ..not promising
+
+        for (size_t i = permLength; i < path.size(); ++i) {
+            swap(path[permLength], path[i]);
+            genPerms(path, permLength + 1);
+            swap(path[permLength], path[i]);
+        }  // for ..unpermuted elements
+    }  // genPerms()
 };

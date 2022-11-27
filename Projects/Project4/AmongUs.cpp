@@ -110,7 +110,6 @@ void AmongUs::fastTsp() {
     primV.resize(roomN);
     path.reserve(roomN);
     uint32_t curIdx = 0;
-    double runningTotal = 0;
     // nearest neighbor
     // for (uint32_t i = 0; i < roomN; ++i) {
     //     double minDis = numeric_limits<double>::infinity();
@@ -137,7 +136,7 @@ void AmongUs::fastTsp() {
     primV[1].isVisitied = true;
     path.push_back(2);
     primV[2].isVisitied = true;
-    runningTotal += getDistance(0, 1) + getDistance(1, 2) + getDistance(0, 2);
+    bestSoFar = getDistance(0, 1) + getDistance(1, 2) + getDistance(0, 2);
     // double minDis0 = numeric_limits<double>::infinity();
     // for (uint32_t i = 1; i < roomN; ++i) {
     //     double newDis = getDistance(0, i);
@@ -179,11 +178,11 @@ void AmongUs::fastTsp() {
             path.insert(path.begin() + tempIdx + 1, curIdx);
         }
         primV[curIdx].isVisitied = true;
-        runningTotal += minDis;
+        bestSoFar += minDis;
     }
 
     if (mode == 'f') {
-        cout << runningTotal << '\n';
+        cout << bestSoFar << '\n';
         for (uint32_t i = 0; i < roomN; ++i) {
             cout << path[i] << ' ';
         }
@@ -208,7 +207,7 @@ int main(int argc, char* argv[]) {
     } else if (au.mode == 'f') {
         au.fastTsp();
     } else {
-        au.fastTsp();
+        au.optTsp();
     }
 
     return 0;
