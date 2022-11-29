@@ -1,9 +1,8 @@
 // Project Identifier: 9B734EC0C043C5A836EA0EBE4BEFEA164490B2C7
 #include "AmongUs.h"
+#include "xcode_redirect.hpp"
 #include <getopt.h>
-#include <iostream>
 #include <iomanip>
-#include <cstring>
 
 using namespace std;
 
@@ -11,8 +10,9 @@ void AmongUs::getMode(int argc, char* argv[]) {
     opterr = false; // Let us handle all error output for command line options
     int choice;
     int option_index = 0;
+    string modeArg = "";
     option long_options[] = {
-        { "mode",   no_argument, nullptr, 'm' },
+        { "mode", required_argument, nullptr, 'm' },
         { "help", no_argument, nullptr, 'h' },
         { nullptr,  0,                 nullptr, '\0'}
     };
@@ -23,20 +23,20 @@ void AmongUs::getMode(int argc, char* argv[]) {
                 printHelp(argv);
                 exit(0);
             case 'm':
-                if (strcmp(optarg, "MST") == 0) {
+                modeArg = std::string(optarg);
+                if (modeArg == "MST") {
                     mode = 'm';
-                } else if (strcmp(optarg, "FASTTSP") == 0) {
+                } else if (modeArg == "FASTTSP") {
                     mode = 'f';
-                } else if (strcmp(optarg, "OPTTSP") == 0) {
+                } else if (modeArg == "OPTTSP") {
                     mode = 'o';
                 } else {
-                    if (optarg[0] == '\0') cerr << "Error: No mode specified\n";
-                    else cerr << "Error: Invalid mode\n";
+                    modeArg.size() == 0 ? cerr << "Error: No mode specified" << endl : cerr << "Error: Invalid mode" << endl;
                     exit(1);
                 }
                 break;
             default:
-                cerr << "Error: Invalid command line option" << '\n';
+                cerr << "Error: Invalid command line option" << endl;
                 exit(1);
         } // switch
     } // while
@@ -46,34 +46,15 @@ void AmongUs::readFile() {
     cin >> roomN;
     roomV.reserve(roomN);
     int x, y;
-    bool lab = false;
-    bool outer = false;
-    bool decon = false;
-    char type;
     for (uint32_t i = 0; i < roomN; ++i) {
         cin >> x >> y;
-        if (x > 0 || y > 0) {
-            type = 'o';
-            outer = true;
-        } else if (x < 0 && y < 0) {
-            type = 'l';
-            lab = true;
-        } else {
-            type = 'd';
-            decon = true;
-        }
-        roomV.emplace_back(x, y, type);
-    }
-    if (lab && outer && !decon) {
-        cerr << "Cannot construct MST\n";
-        exit(1);            
+        roomV.emplace_back(x, y);
     }
 }
 
 void AmongUs::mst() {
     primV.resize(roomN);
     primV[0].distance = 0;
-    double runningTotal = 0;
     for (uint32_t i = 0; i < roomN; ++i) {
         double curMinDis = numeric_limits<double>::infinity();
         uint32_t roomIdx = 0;
@@ -84,8 +65,12 @@ void AmongUs::mst() {
                 roomIdx = j;
             }
         }
+        if (curMinDis == numeric_limits<double>::infinity()) {
+             cerr << "Cannot construct MST" << endl;
+            exit(1);          
+        }
         primV[roomIdx].isVisitied = true;
-        runningTotal += primV[roomIdx].distance;
+        runningTotal += curMinDis;
         for (uint32_t j = 0; j < roomN; ++j) {
             if (!primV[j].isVisitied && !((roomV[roomIdx].type == 'o' && roomV[j].type == 'l') || (roomV[j].type == 'o' && roomV[roomIdx].type == 'l'))) {
                 double newDis = getDistance(roomIdx, j);
@@ -96,106 +81,72 @@ void AmongUs::mst() {
             }
         }
     }
-    if (mode == 'm') {
-        cout << runningTotal << '\n';
-        for (uint32_t i = 1; i < roomN; ++i) {
-            if (i < primV[i].parent) cout << i << ' ' << primV[i].parent << '\n';
-            else cout <<  primV[i].parent << ' ' << i << '\n';
-        }
-    }
+    cout << runningTotal << '\n';
+    for (uint32_t i = 1; i < roomN; ++i)
+        i < primV[i].parent ? cout << i << ' ' << primV[i].parent << '\n' : cout << primV[i].parent << ' ' << i << '\n';
 }
 
 void AmongUs::fastTsp() {
     primV.clear();
     primV.resize(roomN);
-    path.reserve(roomN);
-    uint32_t curIdx = 0;
-    // nearest neighbor
-    // for (uint32_t i = 0; i < roomN; ++i) {
-    //     double minDis = numeric_limits<double>::infinity();
-    //     uint32_t tempIdx = 0;
-    //     for (uint32_t j = 0; j < roomN; ++j) {
-    //         if (!primV[j].isVisitied) {
-    //             double newDis = getDistance(curIdx, j);
-    //             if (newDis < minDis) {
-    //                 minDis = newDis;
-    //                 tempIdx = j;
-    //             }
-    //         }
-    //     }
-    //     curIdx = tempIdx;
-    //     path.push_back(curIdx);
-    //     primV[curIdx].isVisitied = true;
-    //     runningTotal += minDis;
-    // }
-    // runningTotal += getDistance(curIdx, 0);
-
-    path.push_back(0);
+    bestPath.reserve(roomN);
+    bestPath.push_back(0);
     primV[0].isVisitied = true;
-    path.push_back(1);
+    bestPath.push_back(1);
     primV[1].isVisitied = true;
-    path.push_back(2);
+    bestPath.push_back(2);
     primV[2].isVisitied = true;
-    bestSoFar = getDistance(0, 1) + getDistance(1, 2) + getDistance(0, 2);
-    // double minDis0 = numeric_limits<double>::infinity();
-    // for (uint32_t i = 1; i < roomN; ++i) {
-    //     double newDis = getDistance(0, i);
-    //     if (newDis < minDis0) {
-    //         minDis0 = newDis;
-    //         curIdx = i;
-    //     }
-    // }
-    // path.push_back(curIdx);
-    // runningTotal += 2 * minDis0;
-    // primV[curIdx].isVisitied = true;
+    bestDis = getDistance(0, 1) + getDistance(1, 2) + getDistance(0, 2);
     for (uint32_t i = 3; i < roomN; ++i) {
         double minDis = numeric_limits<double>::infinity();
-        uint32_t tempIdx = i;
-        // for (uint32_t j = 0; j < roomN; ++j) {
-        //     if (!primV[j].isVisitied) {
-        //         double newDis = getDistance(curIdx, j);
-        //         if (newDis < minDis) {
-        //             minDis = newDis;
-        //             tempIdx = j;
-        //         }
-        //     }
-        // }
-        curIdx = tempIdx;
-        tempIdx = 0;
-        minDis = numeric_limits<double>::infinity();
-        for (uint32_t j = 0; j < static_cast<uint32_t>(path.size() - 1); ++j) {
-            double newDis = getDistance(path[j], curIdx) + getDistance(curIdx, path[j + 1]) - getDistance(path[j], path[j + 1]);
+        uint32_t tempIdx = 0;
+        for (uint32_t j = 0; j < static_cast<uint32_t>(bestPath.size() - 1); ++j) {
+            double newDis = getDistance(bestPath[j], i) + getDistance(i, bestPath[j + 1]) - getDistance(bestPath[j], bestPath[j + 1]);
             if (newDis < minDis) {
                 minDis = newDis;
                 tempIdx = j;
             }
         }
-        double lastDis = getDistance(0, curIdx) + getDistance(curIdx, path.back()) - getDistance(0, path.back());
+        double lastDis = getDistance(0, i) + getDistance(i, bestPath.back()) - getDistance(0, bestPath.back());
         if (lastDis < minDis) {
             minDis = lastDis;
-            path.push_back(curIdx);
+            bestPath.push_back(i);
         } else {
-            path.insert(path.begin() + tempIdx + 1, curIdx);
+            bestPath.insert(bestPath.begin() + tempIdx + 1, i);
         }
-        primV[curIdx].isVisitied = true;
-        bestSoFar += minDis;
+        primV[i].isVisitied = true;
+        bestDis += minDis;
     }
 
     if (mode == 'f') {
-        cout << bestSoFar << '\n';
-        for (uint32_t i = 0; i < roomN; ++i) {
-            cout << path[i] << ' ';
-        }
+        cout << bestDis << '\n';
+        for (uint32_t i = 0; i < roomN; ++i)
+            cout << bestPath[i] << ' ';
         cout << '\n';
     }
 }
 
 void AmongUs::optTsp() {
-
+    fastTsp();
+    path = bestPath;
+    disMatrix.resize(roomN, vector<double>(roomN));
+    for (uint32_t i = 0; i < roomN; ++i) {
+        for (uint32_t j = i; j < roomN; ++j) {
+            double dis = getDistance(i, j);
+            disMatrix[i][j] = dis;
+            disMatrix[j][i] = dis;
+        }
+    }
+    genPerms(1);
+    cout << bestDis << '\n';
+    for (uint32_t i = 0; i < roomN; ++i)
+        cout << bestPath[i] << ' ';
+    cout << '\n';
 }
 
 int main(int argc, char* argv[]) {
     ios_base::sync_with_stdio(false);
+    xcode_redirect(argc,argv);
     cout << std::setprecision(2); //Always show 2 decimal places
     cout << std::fixed; //Disable scientific notation for large numbers
 
